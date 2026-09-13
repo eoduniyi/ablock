@@ -16,9 +16,9 @@ $$
 \mathbf{f}_i = (\sigma_i I - \kappa_i) \nabla V_\theta(\mathbf{x}_i)
 $$
 
-- **Contractive Dilator ($-\kappa \nabla V_\theta$):** Stabilizes particles onto learned score isolines.
-- **Transverse Rotor ($\sigma I \nabla V_\theta$):** Injects non-conservative, orthogonal circulation along the energy contours to cross steric barriers without modifying the underlying energy landscape.
-- **Linear Complexity ($O(N)$):** Evaluates independent local score fields per particle, replacing quadratic $O(N^2)$ pairwise proximity graphs.
+- **Contractive Dilator** ($-\kappa \nabla V_\theta$): Stabilizes particles onto learned score isolines.
+- **Transverse Rotor** ($\sigma I \nabla V_\theta$): Injects non-conservative, orthogonal circulation along the energy contours to cross steric barriers without modifying the underlying energy landscape.
+- **Linear Complexity** ($O(N)$): Evaluates independent local score fields per particle, replacing quadratic $O(N^2)$ pairwise proximity graphs.
 
 ---
 
