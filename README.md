@@ -10,9 +10,11 @@ Official anonymous code repository for the paper:
 
 Sampling rugged, multi-basin conformational landscapes without falling into kinetic traps is a long-standing challenge in molecular dynamics and generative modeling. Standard Euclidean Langevin samplers rely purely on gradient descent ($\mathbf{f} = -\nabla V$), causing ensembles to suffer kinetic arrest in local potential wells.
 
-**A-Block** introduces an algebraic framework uniting **Geometric Algebra ($\operatorname{Cl}(2,0)$)** with **Denoising Score Matching (DSM)** and active matter Langevin hydrodynamics:
+**A-Block** introduces an algebraic framework uniting **Geometric Algebra** $\text{Cl}(2,0)$ with **Denoising Score Matching (DSM)** and active matter Langevin hydrodynamics:
 
-$$\mathbf{f}_i = (\sigma_i I - \kappa_i) \nabla V_\theta(\mathbf{x}_i)$$
+$$
+\mathbf{f}_i = (\sigma_i I - \kappa_i) \nabla V_\theta(\mathbf{x}_i)
+$$
 
 - **Contractive Dilator ($-\kappa \nabla V_\theta$):** Stabilizes particles onto learned score isolines.
 - **Transverse Rotor ($\sigma I \nabla V_\theta$):** Injects non-conservative, orthogonal circulation along the energy contours to cross steric barriers without modifying the underlying energy landscape.
@@ -53,13 +55,13 @@ pip install -e .
 ```
 
 ### Dependency Requirements
-- Python $\ge$ 3.8
-- PyTorch $\ge$ 2.0.0
-- NumPy $\ge$ 1.22.0
-- SciPy $\ge$ 1.8.0
-- Matplotlib $\ge$ 3.5.0
-- Pillow $\ge$ 9.0.0
-- PyTest $\ge$ 7.0.0
+- Python >= 3.8
+- PyTorch >= 2.0.0
+- NumPy >= 1.22.0
+- SciPy >= 1.8.0
+- Matplotlib >= 3.5.0
+- Pillow >= 9.0.0
+- PyTest >= 7.0.0
 
 ---
 
@@ -86,12 +88,12 @@ Tests non-conservative rotor circulation in navigating high-curvature, non-conve
 python reproduce_typography_figure3.py
 ```
 **Expected Outputs:**
-- `output/typography_metrics.json`: Records In-Glyph Precision ($\%$) and Stroke Coverage ($\%$).
+- `output/typography_metrics.json`: Records In-Glyph Precision (%) and Stroke Coverage (%).
 - `output/figure3_typography_benchmark.pdf` & `.png`: 4-panel figure comparing:
-  - Brownian: Precision 53.2%, Coverage 42.1% (leaks into void).
-  - Langevin: Precision 99.9%, Coverage 22.7% (complete kinetic arrest in spur).
-  - Rotor-Only: Precision 42.8%, Coverage 64.6% (centrifugal boundary leakage).
-  - A-Block Full Clifford: Precision 100.0%, Coverage 77.1% (zero boundary escape, complete stroke illumination).
+  - Brownian: Precision 18.7%, Coverage 42.1% (unbounded diffusion into void).
+  - Langevin: Precision 99.3%, Coverage 33.9% (severe kinetic arrest in spur).
+  - Rotor-Only: Precision 0.2%, Coverage 2.9% (unstable centrifugal boundary leakage).
+  - A-Block Full Clifford: Precision 99.8%, Coverage 97.8% (active confinement, robust non-convex exploration).
 
 ---
 
