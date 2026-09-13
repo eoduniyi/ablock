@@ -1,0 +1,26 @@
+{
+  "Brownian Dynamics (f = 0)": {
+    "Wasserstein_1_Distance": 3.127,
+    "FES_Basin_RMSE_kcal_mol": 2.572,
+    "Multi_Basin_Coverage_pct": 2.0,
+    "Time_sec": 0.0485
+  },
+  "Standard Langevin (f = -\\nabla V)": {
+    "Wasserstein_1_Distance": 0.066,
+    "FES_Basin_RMSE_kcal_mol": 1.476,
+    "Multi_Basin_Coverage_pct": 60.9,
+    "Time_sec": 2.1828
+  },
+  "Rotor-Only (\\kappa = 0)": {
+    "Wasserstein_1_Distance": 4.243,
+    "FES_Basin_RMSE_kcal_mol": 3.028,
+    "Multi_Basin_Coverage_pct": 0.4,
+    "Time_sec": 1.9282
+  },
+  "A-Block Full Clifford (Ours)": {
+    "Wasserstein_1_Distance": 0.385,
+    "FES_Basin_RMSE_kcal_mol": 1.059,
+    "Multi_Basin_Coverage_pct": 37.4,
+    "Time_sec": 1.8795
+  }
+}

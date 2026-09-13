@@ -1,0 +1,18 @@
+{
+  "Brownian Dynamics": {
+    "precision": 53.2,
+    "coverage": 42.1
+  },
+  "Standard Langevin": {
+    "precision": 99.9,
+    "coverage": 22.7
+  },
+  "Rotor-Only (\u03ba = 0)": {
+    "precision": 42.8,
+    "coverage": 64.6
+  },
+  "A-Block Full Clifford (Ours)": {
+    "precision": 100.0,
+    "coverage": 54.2
+  }
+}
