@@ -1,0 +1,610 @@
+/* ==========================================================================
+   PROGRESSIVE PROOF & FORMAL TYPOGRAPHY
+   Rock-Solid Layout, Typewriter Ink, Zero Jitter
+   ========================================================================== */
+
+/* 1. VELLUM — Archival Parchment & Iron Gall Ink */
+:root, [data-theme="vellum"], [data-theme="light"] {
+  --bg-color: #f7f5f0;
+  --plate-bg: rgba(255, 255, 255, 0.95);
+  --plate-border: rgba(0, 0, 0, 0.07);
+  --plate-shadow: 0 20px 50px rgba(40, 32, 20, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --text-primary: #1a1a1e;
+  --text-secondary: #5c626e;
+  --text-latent: 0.08;
+  --accent: #92400e;
+  --accent-glow: rgba(146, 64, 14, 0.22);
+  --active-wash: rgba(146, 64, 14, 0.045);
+  --active-wash-border: rgba(146, 64, 14, 0.12);
+  --cursor-color: #92400e;
+  --tombstone-color: #1a1a1e;
+  --tombstone-glow: rgba(146, 64, 14, 0.25);
+  --pip-inactive: rgba(0, 0, 0, 0.12);
+  --pip-active: #92400e;
+  --nav-text: #6b7280;
+  --nav-hover: #111317;
+  --font-serif: 'EB Garamond', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 2. DARKROOM — Photographic Safelight & Silver Gelatin */
+[data-theme="darkroom"], [data-theme="dark"] {
+  --bg-color: #0a0a0c;
+  --plate-bg: rgba(16, 16, 20, 0.92);
+  --plate-border: rgba(255, 255, 255, 0.06);
+  --plate-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(255, 255, 255, 0.03);
+  --text-primary: #e8e6e1;
+  --text-secondary: #8a8a90;
+  --text-latent: 0.07;
+  --accent: #dc2626;
+  --accent-glow: rgba(220, 38, 38, 0.35);
+  --active-wash: rgba(220, 38, 38, 0.08);
+  --active-wash-border: rgba(220, 38, 38, 0.22);
+  --cursor-color: #dc2626;
+  --tombstone-color: #e8e6e1;
+  --tombstone-glow: rgba(220, 38, 38, 0.4);
+  --pip-inactive: rgba(255, 255, 255, 0.12);
+  --pip-active: #dc2626;
+  --nav-text: #6b6b72;
+  --nav-hover: #e8e6e1;
+}
+
+/* 3. MOSS — Japanese Forest & Wabi-Sabi Ceramics */
+[data-theme="moss"] {
+  --bg-color: #1a1f1a;
+  --plate-bg: rgba(22, 28, 22, 0.93);
+  --plate-border: rgba(120, 160, 110, 0.12);
+  --plate-shadow: 0 24px 60px rgba(0, 8, 0, 0.7), 0 1px 2px rgba(120, 160, 110, 0.06);
+  --text-primary: #dfe5da;
+  --text-secondary: #8a9b83;
+  --text-latent: 0.08;
+  --accent: #86efac;
+  --accent-glow: rgba(134, 239, 172, 0.25);
+  --active-wash: rgba(134, 239, 172, 0.06);
+  --active-wash-border: rgba(134, 239, 172, 0.16);
+  --cursor-color: #86efac;
+  --tombstone-color: #dfe5da;
+  --tombstone-glow: rgba(134, 239, 172, 0.35);
+  --pip-inactive: rgba(134, 239, 172, 0.15);
+  --pip-active: #86efac;
+  --nav-text: #6b7a65;
+  --nav-hover: #dfe5da;
+}
+
+/* 4. CLAY — Terracotta & Raw Earth */
+[data-theme="clay"] {
+  --bg-color: #f0e6db;
+  --plate-bg: rgba(248, 242, 234, 0.97);
+  --plate-border: rgba(120, 70, 40, 0.10);
+  --plate-shadow: 0 20px 48px rgba(80, 40, 10, 0.10), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --text-primary: #2d1f14;
+  --text-secondary: #6b5340;
+  --text-latent: 0.08;
+  --accent: #c2410c;
+  --accent-glow: rgba(194, 65, 12, 0.28);
+  --active-wash: rgba(194, 65, 12, 0.05);
+  --active-wash-border: rgba(194, 65, 12, 0.15);
+  --cursor-color: #c2410c;
+  --tombstone-color: #2d1f14;
+  --tombstone-glow: rgba(194, 65, 12, 0.3);
+  --pip-inactive: rgba(45, 31, 20, 0.14);
+  --pip-active: #c2410c;
+  --nav-text: #8b7260;
+  --nav-hover: #2d1f14;
+}
+
+/* 5. INDIGO — Astronomical Observatory & Starfield */
+[data-theme="indigo"] {
+  --bg-color: #0c0a1a;
+  --plate-bg: rgba(14, 12, 28, 0.93);
+  --plate-border: rgba(129, 140, 248, 0.12);
+  --plate-shadow: 0 24px 64px rgba(0, 0, 20, 0.85), 0 1px 2px rgba(129, 140, 248, 0.06);
+  --text-primary: #e8e6f4;
+  --text-secondary: #8b88a8;
+  --text-latent: 0.07;
+  --accent: #a78bfa;
+  --accent-glow: rgba(167, 139, 250, 0.35);
+  --active-wash: rgba(167, 139, 250, 0.08);
+  --active-wash-border: rgba(167, 139, 250, 0.2);
+  --cursor-color: #a78bfa;
+  --tombstone-color: #e8e6f4;
+  --tombstone-glow: rgba(167, 139, 250, 0.4);
+  --pip-inactive: rgba(167, 139, 250, 0.15);
+  --pip-active: #a78bfa;
+  --nav-text: #6b68a0;
+  --nav-hover: #e8e6f4;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-color);
+  font-family: var(--font-serif);
+  color: var(--text-primary);
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+#canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+canvas {
+  display: block;
+}
+
+/* Stage Layout */
+.proof-stage {
+  position: relative;
+  z-index: 10;
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  pointer-events: none;
+  padding: 36px 24px;
+}
+
+/* Top Minimal Navigation */
+.stage-nav {
+  pointer-events: auto;
+  position: relative;
+  top: auto;
+  width: min(780px, calc(100vw - 48px));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--nav-text);
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.nav-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text-btn {
+  background: transparent;
+  border: none;
+  color: var(--nav-text);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.text-btn:hover {
+  color: var(--nav-hover);
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.text-btn.is-paused {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nav-sep {
+  opacity: 0.35;
+}
+
+.step-indicator {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  font-size: 10.5px;
+  color: var(--accent);
+}
+
+/* The Formal Proof Plate */
+.proof-plate {
+  pointer-events: auto;
+  width: min(780px, calc(100vw - 48px));
+  background: var(--plate-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--plate-border);
+  border-radius: 14px;
+  box-shadow: var(--plate-shadow);
+  padding: 38px 48px;
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== PROOF LINE LAYOUT (parent controls layout, NOT opacity) ===== */
+.proof-line {
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  pointer-events: auto;
+  position: relative;
+  padding: 11px 14px 6px 14px; /* Optical vertical centering for Garamond & KaTeX baseline */
+  margin-left: -14px;
+  margin-right: -14px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: color 0.45s ease, background-color 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
+}
+
+/* Active line: Soft illuminated typographic wash instead of left border line */
+.proof-line.visible.current {
+  color: var(--text-primary);
+  background-color: var(--active-wash);
+  border-color: var(--active-wash-border);
+  box-shadow: 0 2px 14px -3px var(--accent-glow);
+}
+
+.proof-line.tombstone-line {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ===== TYPEWRITER CHARACTER UNITS ===== */
+
+/* Active Character Ink Cursor — Zero DOM injection, zero layout shift */
+.type-char {
+  display: inline;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.06s ease;
+}
+
+.type-char.type-space {
+  white-space: pre;
+}
+
+.type-char.type-math {
+  display: inline;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+/* Typed: fully visible */
+.type-char.typed {
+  opacity: 1;
+}
+
+/* Crisp vertical pipe '|' attached directly to the active letter */
+.type-char.has-cursor {
+  border-right: 2px solid var(--cursor-color);
+  margin-right: -2px;
+  animation: blink-cursor 0.72s infinite steps(2, start);
+}
+
+.type-char.has-cursor-before {
+  border-left: 2px solid var(--cursor-color);
+  margin-left: -2px;
+  animation: blink-cursor 0.72s infinite steps(2, start);
+}
+
+@keyframes blink-cursor {
+  0%, 100% { border-color: var(--cursor-color); }
+  50% { border-color: transparent; }
+}
+
+/* Lines that are past (already revealed): force all chars visible */
+.proof-line.past .type-char {
+  opacity: 1 !important;
+}
+
+/* Latent (future) lines: entire line has faint watermark presence */
+.proof-line.latent {
+  opacity: var(--text-latent);
+}
+
+/* Nav Swatch Indicator */
+#theme-swatch {
+  display: inline-block;
+  font-size: 10px;
+  margin-right: 4px;
+  color: var(--accent);
+  transition: color 0.3s ease;
+}
+
+/* Line 0: Proposition Header */
+.line-0 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  text-align: center;
+}
+
+.prop-title {
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.prop-subtitle {
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.15;
+  color: var(--text-secondary);
+}
+
+.prop-subtitle-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.15;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.25s ease;
+}
+
+.prop-subtitle-btn:hover {
+  color: var(--accent);
+}
+
+.lens-badge {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 2.5px 6px;
+  border-radius: 4px;
+  background: var(--plate-border);
+  color: var(--nav-text);
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.prop-subtitle-btn:hover .lens-badge {
+  background: var(--accent);
+  color: var(--bg-color);
+}
+
+/* Proposition Statements (Lines 1 & 2) */
+.statement-text {
+  font-size: 19px;
+  line-height: 1.45;
+  text-align: left;
+  letter-spacing: -0.01em;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+.line-2 {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--plate-border);
+  margin-bottom: 12px;
+}
+
+/* Proof Sketch (Lines 3, 4, 5) */
+.sketch-text {
+  font-size: 17.5px;
+  line-height: 1.46;
+  text-align: left;
+  letter-spacing: -0.01em;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+.proof-line.visible.current .sketch-text {
+  color: var(--text-primary);
+}
+
+.sketch-prefix {
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text-primary);
+  margin-right: 0;
+}
+
+/* Line 6: The Halmos Tombstone */
+.tombstone-line {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 14px;
+  margin-bottom: 10px;
+  height: 38px;
+  min-height: 38px;
+}
+
+/* Tombstone line never gets the left glow bar */
+.tombstone-line::before {
+  display: none !important;
+}
+
+.tombstone-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  outline: none;
+  user-select: none;
+}
+
+.tombstone-wrap:hover {
+  background: rgba(128, 128, 128, 0.08);
+  border-color: var(--accent);
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+
+.tombstone-glyph {
+  font-size: 21px;
+  line-height: 1;
+  color: var(--tombstone-color);
+  text-shadow: 0 0 6px var(--tombstone-glow);
+  transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+.tombstone-sub {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.tombstone-wrap.qed-active .tombstone-glyph {
+  color: var(--accent);
+  animation: pulse-monument 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes pulse-monument {
+  0% { text-shadow: 0 0 6px var(--tombstone-glow); }
+  100% { text-shadow: 0 0 20px var(--accent-glow), 0 0 32px var(--accent-glow); }
+}
+
+/* Telemetry & Progress Strip */
+.proof-telemetry {
+  margin-top: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--plate-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  gap: 16px;
+}
+
+.progress-track {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.progress-pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pip-inactive);
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+}
+
+.progress-pip:hover {
+  background: var(--text-secondary);
+  transform: scale(1.35);
+}
+
+.progress-pip.active {
+  background: var(--pip-active);
+  box-shadow: 0 0 8px var(--accent-glow);
+  transform: scale(1.15);
+}
+
+.telemetry-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.telemetry-info.fading {
+  opacity: 0.1;
+  transform: translateY(2px);
+}
+
+.telemetry-sep {
+  opacity: 0.3;
+}
+
+#telemetry-regime {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+#telemetry-cost {
+  color: var(--text-secondary);
+}
+
+kbd {
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: var(--accent);
+}
+
+/* KaTeX Overrides */
+.katex {
+  font-size: 1.05em;
+}
+
+.katex .katex-html {
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .proof-plate {
+    padding: 28px 24px 22px;
+  }
+  .prop-title {
+    font-size: 22px;
+  }
+  .prop-subtitle {
+    font-size: 16px;
+  }
+  .statement-text {
+    font-size: 16.5px;
+  }
+  .sketch-text {
+    font-size: 15.5px;
+  }
+  .proof-telemetry {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .progress-pip {
+    width: 16px;
+  }
+}

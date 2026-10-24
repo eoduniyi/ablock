@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="vellum">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proposition 1 — Progressive Proof & Typography</title>
+  
+  <!-- Typography: EB Garamond (scholarly serif), Inter (precision sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Formal LaTeX Rendering: KaTeX (Local synchronous load for instant, zero-delay rendering) -->
+  <link rel="stylesheet" href="vendor/katex/katex.min.css">
+  <script src="vendor/katex/katex.min.js"></script>
+  <script src="vendor/katex/auto-render.min.js"></script>
+
+  <!-- p5.js Kinetic Canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
+  
+  <link rel="stylesheet" href="style.css?v=202609130050">
+</head>
+<body>
+  <!-- Ambient Kinetic Particle & Vector Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- Stage -->
+  <main class="proof-stage">
+    <!-- Top Minimal Controls (Theme & Auto-Advance) -->
+    <nav class="stage-nav">
+      <div class="nav-cluster">
+        <button id="btn-theme" class="text-btn" title="Cycle Color Scheme (Hotkey: C or L)">
+          <span id="theme-swatch">●</span> SCHEME: <span id="theme-text">VELLUM</span>
+        </button>
+        <span class="nav-sep">/</span>
+        <button id="btn-lens" class="text-btn" title="Toggle Perspective: Systems vs Mechanistic (Hotkey: M)">
+          LENS: <span id="lens-text">SYSTEMS</span>
+        </button>
+        <span class="nav-sep">/</span>
+        <button id="btn-play" class="text-btn" onclick="toggleAuto()" title="Play / Pause Auto-Advance (Hotkey: Space or P)">
+          <span id="play-icon">⏸</span> <span id="play-text">PAUSE</span>
+        </button>
+        <span class="nav-sep">/</span>
+        <button id="btn-replay" class="text-btn" title="Restart Unrolling from Proposition Header (Hotkey: R)">
+          REPLAY
+        </button>
+      </div>
+
+      <div class="nav-cluster">
+        <span class="step-indicator" id="step-counter">STEP I / VII</span>
+      </div>
+    </nav>
+
+    <!-- The Formal Proof Plate with Progressive Disclosure Lines -->
+    <article class="proof-plate" id="proof-plate">
+      <!-- Line 0: Proposition Header -->
+      <div class="proof-line line-0" data-step="0">
+        <h1 class="prop-title">Proposition 1</h1>
+        <button class="prop-subtitle-btn" id="btn-prop-subtitle" title="Click to toggle perspective: Systems ⇄ Mechanistic (Hotkey: M)">
+          <span id="prop-subtitle-text">(Linear-Time Particle Updates)</span>
+          <span id="prop-lens-badge" class="lens-badge">SYSTEMS</span>
+        </button>
+      </div>
+
+      <!-- Line 1: Proposition Statement - Part A (Metric Graph Dilemma) -->
+      <div class="proof-line line-1" data-step="1"><p class="statement-text">Evaluating pairwise distances across $N$ particles in a metric proximity graph $G_\varepsilon$ incurs $\binom{N}{2}$ operations ($\mathcal{O}(N^2)$).</p></div>
+
+      <!-- Line 2: Proposition Statement - Part B (The Measure Transformation Solution) -->
+      <div class="proof-line line-2" data-step="2"><p class="statement-text">In an A-Block, decoupling relational edges via the empirical measure transformation $\mathcal{T}$ and localized Clifford score updates $\mathbf{f}_i(\mathbf{x}_i) = (\sigma_i I - \kappa_i)\nabla V_\theta(\mathbf{x}_i)$ reduces per-frame sampling complexity to strictly $\mathcal{O}(N)$.</p></div>
+
+      <!-- Line 3: Proof Sketch - Prefix & Adjacency Matrix -->
+      <div class="proof-line line-3" data-step="3"><p class="sketch-text"><span class="sketch-prefix">Proof Sketch.</span> In the metric graph regime, the adjacency matrix $\mathbf{A}_{ij} = \mathbb{I}(\|\mathbf{x}_i - \mathbf{x}_j\| < \varepsilon)$ requires $\binom{N}{2}$ all-pairs evaluations.</p></div>
+
+      <!-- Line 4: Proof Sketch - Transformation T and Independent Updates -->
+      <div class="proof-line line-4" data-step="4"><p class="sketch-text">Under transformation $\mathcal{T},$ each particle $\mathbf{x}_i$ is updated independently via the local neural gradient $\nabla V_\theta(\mathbf{x}_i)$ and algebraic rotor $(\sigma_i I - \kappa_i),$ requiring exactly $1$ forward-backward pass per particle.</p></div>
+
+      <!-- Line 5: Proof Sketch - Modular Ensemble Summation -->
+      <div class="proof-line line-5" data-step="5"><p class="sketch-text">For an ensemble of $K$ modular A-Blocks ($A_1, \dots, A_K$) with $N_k$ particles each, total compute cost scales as $\sum_{k=1}^K \mathcal{O}(N_k) = \mathcal{O}(N_{\text{total}})$.</p></div>
+
+      <!-- Line 6: The Halmos Tombstone (∎ / Q.E.D. Terminus) -->
+      <div class="proof-line line-6 tombstone-line" data-step="6">
+        <span class="tombstone-wrap" id="tombstone" role="button" tabindex="0" title="The Halmos Tombstone: Signifies the end of the proof. Click to trigger Q.E.D. crystallization.">
+          <span class="tombstone-glyph">∎</span>
+          <span class="tombstone-sub">Q.E.D.</span>
+        </span>
+      </div>
+
+      <!-- Minimal Progress & Telemetry Strip -->
+      <footer class="proof-telemetry">
+        <div class="progress-track" id="progress-track">
+          <span class="progress-pip active" data-step="0"></span>
+          <span class="progress-pip" data-step="1"></span>
+          <span class="progress-pip" data-step="2"></span>
+          <span class="progress-pip" data-step="3"></span>
+          <span class="progress-pip" data-step="4"></span>
+          <span class="progress-pip" data-step="5"></span>
+          <span class="progress-pip" data-step="6"></span>
+        </div>
+        <div class="telemetry-info" id="telemetry-info">
+          <span id="telemetry-regime">Brownian Substrate</span>
+          <span class="telemetry-sep">·</span>
+          <span id="telemetry-cost">Click plate or press <kbd>Space</kbd> to begin deduction</span>
+        </div>
+      </footer>
+    </article>
+  </main>
+
+  <script src="sketch.js?v=202609130050"></script>
+</body>
+</html>
