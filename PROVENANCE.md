@@ -28,15 +28,15 @@ $$
 
 | Parameter | Symbol | Value | Physical Role / Provenance |
 | :--- | :---: | :---: | :--- |
-| Basin A Center, Depth, Width | $\mathbf{c}_A, d_A, w_A$ | $(-1.0, 1.0), \; 3.5\text{ kcal/mol}, \; 0.55$ | Initial kinetic trap state |
-| Basin B Center, Depth, Width | $\mathbf{c}_B, d_B, w_B$ | $(1.0, -0.5), \; 4.0\text{ kcal/mol}, \; 0.60$ | Global minimum conformational basin |
-| Basin C Center, Depth, Width | $\mathbf{c}_C, d_C, w_C$ | $(-0.5, -1.0), \; 3.2\text{ kcal/mol}, \; 0.50$ | Intermediate metastable state |
+| Basin A Center, Depth, Width | $\mathbf{c}_A$, $d_A$, $w_A$ | $(-1.0, 1.0), \; 3.5\text{ kcal/mol}, \; 0.55$ | Initial kinetic trap state |
+| Basin B Center, Depth, Width | $\mathbf{c}_B$, $d_B$, $w_B$ | $(1.0, -0.5), \; 4.0\text{ kcal/mol}, \; 0.60$ | Global minimum conformational basin |
+| Basin C Center, Depth, Width | $\mathbf{c}_C$, $d_C$, $w_C$ | $(-0.5, -1.0), \; 3.2\text{ kcal/mol}, \; 0.50$ | Intermediate metastable state |
 | Harmonic Confinement | $c_{\text{conf}}$ | $0.20\text{ kcal/mol}\cdot\text{unit}^{-2}$ | Prevents infinite spatial escape at large $\|\mathbf{x}\|$ |
 | Thermal Energy | $k_B T$ | $0.6\text{ kcal/mol}$ | Room-temperature biomolecular energy scale ($T \approx 300\text{ K}$) |
-| Basin Core Indicator Radius | $r_{\text{basin}}^2$ | $\|\mathbf{x} - \mathbf{c}_k\|^2 < 0.45$ | Defines core basin masks $\mathcal{B}_A, \mathcal{B}_B, \mathcal{B}_C$ |
+| Basin Core Indicator Radius | $r_{\text{basin}}^2$ | $\|\mathbf{x} - \mathbf{c}_k\|^2 < 0.45$ | Defines core basin masks $\mathcal{B}_A$, $\mathcal{B}_B$, and $\mathcal{B}_C$ |
 | Low-Energy FES Evaluation Mask | $\mathcal{M}$ | $V(\mathbf{x}) < -1.2\text{ kcal/mol}$ | Restricts FES RMSE to populated wells & transition saddles |
 
-> **Boltzmann Reference Partitioning:** Under the exact Boltzmann density $p_{\text{B}}(\mathbf{x}) \propto \exp(-V(\mathbf{x})/k_B T)$ on $[-2.2, 2.2]^2$, 8.6% of probability mass lies in $\mathcal{B}_A$, 40.5% in $\mathcal{B}_B$, 23.1% in $\mathcal{B}_C$ (63.6% total in $\mathcal{B}_B \cup \mathcal{B}_C$), and 27.8% in the surrounding basin skirts and saddle regions.
+> **Boltzmann Reference Partitioning:** Under the exact Boltzmann density $p_{\text{B}}(\mathbf{x})$ on $[-2.2, 2.2]^2$, 8.6% of probability mass lies in $\mathcal{B}_A$, 40.5% in $\mathcal{B}_B$, 23.1% in $\mathcal{B}_C$ (63.6% total in $\mathcal{B}_B$ and $\mathcal{B}_C$), and 27.8% in the surrounding basin skirts and saddle regions.
 
 ---
 
@@ -44,11 +44,11 @@ $$
 
 | Parameter | Value | Provenance & Physical Meaning |
 | :--- | :---: | :--- |
-| MLP Architecture | $2 \to 64 \to 64 \to 64 \to 3$ (SiLU) | Smooth $C^\infty$ differentiability for $\nabla_{\mathbf{x}} V_\theta(\mathbf{x})$ |
+| MLP Architecture | $2 \to 64 \to 64 \to 64 \to 3$ (SiLU) | Smooth $C^\infty$ differentiability for $\nabla V_\theta(\mathbf{x})$ |
 | Training Corpus | 12,000 samples (4,000 per basin) | Relaxed via 150 unadjusted Langevin steps ($\Delta t = 0.012, k_B T = 0.6$) |
 | DSM Noise Levels | $\sigma_n \in \{0.05, 0.10, 0.20\}$ | Multi-scale perturbation covering core wells and saddle regions |
 | Optimizer & Schedule | AdamW ($\text{lr}=2\times 10^{-3}$, wd $=10^{-5}$) | 250 epochs, cosine annealing, gradient norm clipping at 1.0 |
-| **Energy Calibration Factor** ($\alpha_E$) | $\alpha_E \approx (k_B T)^{-1} \approx 1.678\text{ (kcal/mol)}^{-1}$ | DSM target $-\boldsymbol{\epsilon}/\sigma_n^2$ estimates dimensionless score $-\nabla V / k_B T$, so $V_\theta \approx V / k_B T$ |
+| **Energy Calibration Factor** ($\alpha_E$) | $\alpha_E \approx 1.678\text{ (kcal/mol)}^{-1}$ | DSM target $-\boldsymbol{\epsilon}/\sigma_n^2$ estimates dimensionless score $-\nabla V / (k_B T)$ |
 | Rotor Chirality Output | $\sigma(\mathbf{x}) = 1.5\tanh(z_1) \in [-1.5, 1.5]$ | Unconstrained random-feature field ($\bar{\sigma} = -1.31 \pm 0.26$) |
 | Dilator Contraction Output | $\kappa(\mathbf{x}) = \text{softplus}(z_2) + 0.1$ | Unconstrained random-feature field ($\bar{\kappa} = 0.33 \pm 0.17$), which naturally counterbalances $\alpha_E$ ($\bar{\kappa}\alpha_E \approx 0.56\text{--}0.92 \approx 1$) |
 

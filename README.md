@@ -22,7 +22,7 @@ $$
 $$
 
 - **Fokker–Planck Stationarity vs. Active Confinement** (Proposition 1):
-  - *Measure-Preserving Non-Reversible Regime:* When $\kappa$ calibrates the dimensionless DSM score scale ($\kappa = \alpha_E^{-1} = k_B T$) and $\sigma = \sigma(V_\theta(\mathbf{x}))$, the transverse rotor current $\mathbf{J}_{\text{irr}} = \gamma^{-1}\sigma(V_\theta) I \nabla V_\theta\,\rho_{\text{B}}$ is strictly divergence-free ($\nabla \cdot \mathbf{J}_{\text{irr}}(\rho_{\text{B}}) = 0$), preserving the exact Boltzmann distribution while accelerating saddle traversal.
+  - *Measure-Preserving Non-Reversible Regime:* When $\kappa$ calibrates the dimensionless DSM score scale ($\kappa = \alpha_E^{-1}$, equal to $k_B T$) and $\sigma = \sigma(V_\theta(\mathbf{x}))$, the transverse rotor current $J_{\text{irr}}$ is strictly divergence-free ($\nabla \cdot J_{\text{irr}} = 0$) at the Boltzmann density $\rho_{\text{B}}$, preserving the exact Boltzmann distribution while accelerating saddle traversal.
   - *Non-Equilibrium Steady State (NESS) Regime:* Driving $(\sigma, \kappa)$ outside fluctuation-dissipation creates an active steady state with persistent boundary circulation for programmable spatial confinement in non-convex geometries.
 - **Linear Scaling** (Proposition 2): Replacing pairwise proximity graphs ($O(N^2)$) with empirical point measures $\mu_t$ yields $O(N)$ per-step scaling, while direct-sum planar dihedral algebras $\bigoplus_{k=1}^K \text{Cl}(2,0)$ scale linearly as $4K$ rather than $2^{2K}$.
 

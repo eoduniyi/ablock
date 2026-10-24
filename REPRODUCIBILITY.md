@@ -31,21 +31,27 @@ $$
 \mathbf{x} \in \mathbb{R}^2 \xrightarrow{\quad \text{MLP with SiLU} \quad} \bigl( V_\theta(\mathbf{x}), \; \sigma(\mathbf{x}), \; \kappa(\mathbf{x}) \bigr)^\top
 $$
 
-1. **Scalar Potential** ($V_\theta(\mathbf{x}) \in \mathbb{R}$): Continuous scalar potential landscape. Because Denoising Score Matching (DSM) regresses against $-\boldsymbol{\epsilon}/\sigma_n^2$, it learns the dimensionless score $\nabla_{\mathbf{x}} \log p(\mathbf{x}) = -\nabla V(\mathbf{x}) / (k_B T)$, yielding an empirical inverse-temperature scale factor $\alpha_E \approx (k_B T)^{-1} \approx 1.678\text{ (kcal/mol)}^{-1}$.
+1. **Scalar Potential** ($V_\theta(\mathbf{x}) \in \mathbb{R}$): Continuous scalar potential landscape. Because Denoising Score Matching (DSM) regresses against $-\boldsymbol{\epsilon}/\sigma_n^2$, it learns the dimensionless score $\nabla \log p(\mathbf{x}) = -\nabla V(\mathbf{x}) / (k_B T)$, yielding an empirical inverse-temperature scale factor $\alpha_E \approx 1.678\text{ (kcal/mol)}^{-1}$ (matching $(k_B T)^{-1}$).
 2. **Rotor Chirality** ($\sigma(\mathbf{x}) = 1.5 \tanh(\cdot) \in [-1.5, 1.5]$): Dictates transverse contour circulation along equipotential isolines.
 3. **Restoration Dilator** ($\kappa(\mathbf{x}) = \text{softplus}(\cdot) + 0.1 \in [0.1, \infty)$): Controls contractive descent ($\bar{\kappa} \approx 0.33\text{--}0.55$), which naturally counterbalances $\alpha_E$ ($\bar{\kappa}\alpha_E \approx 0.56\text{--}0.92 \approx 1$).
 
 ---
 
 ### 1.3 Fokker–Planck Stationarity vs. Non-Equilibrium Active Confinement
-Under the overdamped Ito SDE $d\mathbf{x} = \gamma^{-1}(\sigma(\mathbf{x}) I - \kappa(\mathbf{x}))\nabla V_\theta(\mathbf{x})dt + \sqrt{2 D}\,d\mathbf{W}_t$ ($D = k_B T / \gamma$), the Fokker–Planck equation decomposes into reversible and circulatory currents:
+Under the overdamped Ito SDE with diffusion $D = k_B T / \gamma$:
+
+$$
+d\mathbf{x} = \gamma^{-1}(\sigma(\mathbf{x}) I - \kappa(\mathbf{x}))\nabla V_\theta(\mathbf{x})dt + \sqrt{2 D}\,d\mathbf{W}_t
+$$
+
+the Fokker–Planck equation decomposes into reversible and circulatory currents:
 
 $$
 \frac{\partial \rho}{\partial t} = \nabla \cdot \left(\gamma^{-1}\kappa(\mathbf{x})\rho\nabla V_\theta + D\nabla\rho\right) - \nabla \cdot \left(\gamma^{-1}\sigma(\mathbf{x}) I \nabla V_\theta\,\rho\right)
 $$
 
-* **Measure-Preserving Non-Reversible Regime:** When $\kappa$ is constant (with calibrated potential $\kappa V_\theta = V$) and $\sigma = \sigma(V_\theta(\mathbf{x}))$, the circulatory current $\mathbf{J}_{\text{irr}} = \gamma^{-1}\sigma(V_\theta) I \nabla V_\theta\,\rho_{\text{B}}$ is strictly divergence-free ($\nabla \cdot \mathbf{J}_{\text{irr}}(\rho_{\text{B}}) = 0$), preserving the exact Boltzmann distribution $\rho_{\text{B}}(\mathbf{x}) \propto \exp(-V(\mathbf{x})/k_B T)$ while accelerating barrier crossing.
-* **Non-Equilibrium Steady State (NESS) Regime:** Driving $\kappa$ and $\sigma$ outside fluctuation-dissipation creates an active NESS with persistent boundary currents ($\nabla \times \mathbf{J}_{\text{NESS}} \neq \mathbf{0}$) and sharp topological confinement (used in the non-convex `'G'` glyph navigation benchmark).
+* **Measure-Preserving Non-Reversible Regime:** When $\kappa$ is constant (with calibrated potential $\kappa V_\theta = V$) and $\sigma = \sigma(V_\theta(\mathbf{x}))$, the circulatory current $J_{\text{irr}}$ is strictly divergence-free ($\nabla \cdot J_{\text{irr}} = 0$) at the target Boltzmann distribution $\rho_{\text{B}}(\mathbf{x})$, preserving exact Boltzmann stationarity while accelerating barrier crossing.
+* **Non-Equilibrium Steady State (NESS) Regime:** Driving $\kappa$ and $\sigma$ outside fluctuation-dissipation creates an active NESS with persistent boundary currents ($\nabla \times J_{\text{NESS}} \neq \mathbf{0}$) and sharp topological confinement (used in the non-convex `'G'` glyph navigation benchmark).
 
 ---
 
