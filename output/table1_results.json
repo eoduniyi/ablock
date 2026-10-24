@@ -1,26 +1,72 @@
 {
   "Brownian Dynamics (f = 0)": {
     "Wasserstein_1_Distance": 3.127,
+    "Wasserstein_1_Mean_Std": "3.127 \u00b1 0.035",
     "FES_Basin_RMSE_kcal_mol": 2.572,
+    "FES_Basin_RMSE_Mean_Std": "2.572 \u00b1 0.136",
+    "FES_RMSE_bins25": 2.228,
+    "FES_RMSE_bins50": 2.364,
     "Multi_Basin_Coverage_pct": 2.0,
-    "Time_sec": 0.0485
+    "Multi_Basin_Coverage_Mean_Std": "2.0 \u00b1 0.4%",
+    "Trajectory_Visitation_BC_pct": 56.4,
+    "Transitions_per_particle": 1.74,
+    "Transitions_Mean_Std": "1.74 \u00b1 0.06",
+    "Time_sec": 0.1301
   },
   "Standard Langevin (f = -\\nabla V)": {
     "Wasserstein_1_Distance": 0.066,
+    "Wasserstein_1_Mean_Std": "0.066 \u00b1 0.008",
     "FES_Basin_RMSE_kcal_mol": 1.476,
+    "FES_Basin_RMSE_Mean_Std": "1.476 \u00b1 0.069",
+    "FES_RMSE_bins25": 1.312,
+    "FES_RMSE_bins50": 1.579,
     "Multi_Basin_Coverage_pct": 60.9,
-    "Time_sec": 2.1828
+    "Multi_Basin_Coverage_Mean_Std": "60.9 \u00b1 1.6%",
+    "Trajectory_Visitation_BC_pct": 99.7,
+    "Transitions_per_particle": 21.47,
+    "Transitions_Mean_Std": "21.47 \u00b1 0.13",
+    "Time_sec": 2.2445
+  },
+  "Dilator-Only (\\sigma = 0, \\kappa)": {
+    "Wasserstein_1_Distance": 0.266,
+    "Wasserstein_1_Mean_Std": "0.266 \u00b1 0.026",
+    "FES_Basin_RMSE_kcal_mol": 1.064,
+    "FES_Basin_RMSE_Mean_Std": "1.064 \u00b1 0.044",
+    "FES_RMSE_bins25": 0.75,
+    "FES_RMSE_bins50": 1.316,
+    "Multi_Basin_Coverage_pct": 44.2,
+    "Multi_Basin_Coverage_Mean_Std": "44.2 \u00b1 1.5%",
+    "Trajectory_Visitation_BC_pct": 96.9,
+    "Transitions_per_particle": 13.86,
+    "Transitions_Mean_Std": "13.86 \u00b1 0.15",
+    "Time_sec": 1.8399
   },
   "Rotor-Only (\\kappa = 0)": {
     "Wasserstein_1_Distance": 4.243,
+    "Wasserstein_1_Mean_Std": "4.243 \u00b1 0.017",
     "FES_Basin_RMSE_kcal_mol": 3.028,
+    "FES_Basin_RMSE_Mean_Std": "3.028 \u00b1 0.194",
+    "FES_RMSE_bins25": 2.853,
+    "FES_RMSE_bins50": 2.804,
     "Multi_Basin_Coverage_pct": 0.4,
-    "Time_sec": 1.9282
+    "Multi_Basin_Coverage_Mean_Std": "0.4 \u00b1 0.2%",
+    "Trajectory_Visitation_BC_pct": 70.1,
+    "Transitions_per_particle": 2.82,
+    "Transitions_Mean_Std": "2.82 \u00b1 0.04",
+    "Time_sec": 2.0785
   },
   "A-Block Full Clifford (Ours)": {
     "Wasserstein_1_Distance": 0.385,
+    "Wasserstein_1_Mean_Std": "0.385 \u00b1 0.016",
     "FES_Basin_RMSE_kcal_mol": 1.059,
+    "FES_Basin_RMSE_Mean_Std": "1.059 \u00b1 0.031",
+    "FES_RMSE_bins25": 0.803,
+    "FES_RMSE_bins50": 1.303,
     "Multi_Basin_Coverage_pct": 37.4,
-    "Time_sec": 1.8795
+    "Multi_Basin_Coverage_Mean_Std": "37.4 \u00b1 0.7%",
+    "Trajectory_Visitation_BC_pct": 99.7,
+    "Transitions_per_particle": 22.48,
+    "Transitions_Mean_Std": "22.48 \u00b1 0.15",
+    "Time_sec": 1.9175
   }
 }
