@@ -1,143 +1,104 @@
 #!/usr/bin/env python3
 """
-Generate publication-quality 1x4 comparative benchmark figure for the Typography task
-on the upright non-convex letter 'G' (Topological Navigation & Kinetic Escape).
+Generate publication-quality 1x4 comparative benchmark figure and JSON metrics
+for the Typography task on the upright non-convex letter 'G'
+(Topological Navigation & Kinetic Escape).
+
+Standardized across all methods:
+  - Identical circular aperture boundary condition (r_dish = 0.44 * min(H, W))
+  - Identical stochastic noise amplitude (noise_amp = 0.85, dt = 2.0)
+  - Reports In-Glyph Precision (%), Exact Pixel Trajectory Visitation (%),
+    and Terminal Footprint Coverage (%).
 """
 
 import os
+import json
 import numpy as np
-import scipy.ndimage as ndi
-from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
+from src.potentials import build_glyph_potential
+
 np.random.seed(42)
-
-def build_glyph_potential(resolution=400):
-    img = Image.new('L', (resolution, resolution), color=0)
-    draw = ImageDraw.Draw(img)
-    font = None
-    for p in ['/System/Library/Fonts/Helvetica.ttc', '/System/Library/Fonts/Supplemental/Arial Bold.ttf', '/System/Library/Fonts/Supplemental/Arial.ttf', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf']:
-        try:
-            font = ImageFont.truetype(p, int(resolution * 0.70))
-            break
-        except Exception:
-            pass
-    if font is None:
-        font = ImageFont.load_default()
-
-    bbox = draw.textbbox((0, 0), 'G', font=font)
-    w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    draw.text(((resolution - w)/2 - bbox[0], (resolution - h)/2 - bbox[1]), 'G', fill=255, font=font)
-    mask = (np.array(img) > 128).astype(float)
-    H, W = mask.shape
-
-    density = ndi.gaussian_filter(mask, sigma=7.5)
-    density = density / density.max()
-    V = -np.log(density + 1e-3)
-
-    y_coords, x_coords = np.ogrid[:H, :W]
-    cx, cy = W / 2.0, H / 2.0
-    r_dish = min(H, W) * 0.44
-    dish_dist = np.sqrt((x_coords - cx)**2 + (y_coords - cy)**2)
-    dish_wall = np.maximum(0, dish_dist - r_dish)
-    V += (dish_wall**2) * 0.08
-
-    return V, mask, (cx, cy, r_dish)
 
 def run_typography_simulation(V, mask, dish_info, N=1200, T=4000):
     H, W = V.shape
     cx, cy, r_dish = dish_info
-
     gy, gx = np.gradient(V)
 
-    # Inner spur of upright 'G' is in the center-right (approx x=230, y=205 for 400x400)
+    # Inner spur of upright 'G' is in the center-right (x=230, y=205 for 400x400)
     seed_x, seed_y = int(W * 0.575), int(H * 0.512)
 
-    names = [
-        'Brownian Dynamics',
-        'Standard Langevin',
-        'Rotor-Only (κ = 0)',
-        'A-Block Full Clifford (Ours)'
+    configs = [
+        ('Brownian Dynamics', 0.0, 0.0),
+        ('Standard Langevin', 0.0, 1.0),
+        ('Rotor-Only (κ = 0)', 11.0, 0.0),
+        ('A-Block Full Clifford (Ours)', 11.0, 1.8)
     ]
 
     samplers = {}
-    trajectories = {k: [] for k in names}
+    trajectories = {name: [] for name, _, _ in configs}
     metrics = {}
 
     dt = 2.0
     noise_amp = 0.85
 
-    # 1. Brownian Dynamics
-    p_b = np.random.randn(N, 2) * 3.0 + np.array([seed_x, seed_y])
-    for t in range(T):
-        if t % 5 == 0: trajectories['Brownian Dynamics'].append(p_b[0].copy())
-        p_b += np.random.randn(N, 2) * noise_amp * 2.2
-        dx = p_b[:, 0] - cx; dy = p_b[:, 1] - cy; d = np.sqrt(dx**2 + dy**2)
-        out = d > (r_dish - 2.0)
-        if np.any(out):
-            p_b[out, 0] = cx + (dx[out]/d[out]) * (r_dish - 3.0)
-            p_b[out, 1] = cy + (dy[out]/d[out]) * (r_dish - 3.0)
-    samplers['Brownian Dynamics'] = p_b
+    for name, sig, kap in configs:
+        np.random.seed(42)
+        p = np.random.randn(N, 2) * 3.0 + np.array([seed_x, seed_y])
+        chir = np.random.choice([-1.0, 1.0], size=N)
+        visited_exact = np.zeros_like(mask)
 
-    # 2. Standard Langevin
-    p_l = np.random.randn(N, 2) * 3.0 + np.array([seed_x, seed_y])
-    for t in range(T):
-        if t % 5 == 0: trajectories['Standard Langevin'].append(p_l[0].copy())
-        ix = np.clip(np.round(p_l[:, 0]).astype(int), 0, W-1)
-        iy = np.clip(np.round(p_l[:, 1]).astype(int), 0, H-1)
-        p_l += -dt * np.stack([gx[iy, ix], gy[iy, ix]], axis=1) + np.random.randn(N, 2) * noise_amp
-    samplers['Standard Langevin'] = p_l
+        for t in range(T):
+            if t % 5 == 0:
+                trajectories[name].append(p[0].copy())
+            ix = np.clip(np.round(p[:, 0]).astype(int), 0, W - 1)
+            iy = np.clip(np.round(p[:, 1]).astype(int), 0, H - 1)
+            visited_exact[iy, ix] = 1.0
 
-    # 3. Rotor-Only (kappa = 0)
-    p_r = np.random.randn(N, 2) * 3.0 + np.array([seed_x, seed_y])
-    chir_r = np.random.choice([-1.0, 1.0], size=N)
-    for t in range(T):
-        if t % 5 == 0: trajectories['Rotor-Only (κ = 0)'].append(p_r[0].copy())
-        ix = np.clip(np.round(p_r[:, 0]).astype(int), 0, W-1)
-        iy = np.clip(np.round(p_r[:, 1]).astype(int), 0, H-1)
-        gvx = gx[iy, ix]; gvy = gy[iy, ix]
-        p_r += dt * 11.0 * np.stack([-gvy * chir_r, gvx * chir_r], axis=1) + np.random.randn(N, 2) * noise_amp
-        dx = p_r[:, 0] - cx; dy = p_r[:, 1] - cy; d = np.sqrt(dx**2 + dy**2)
-        out = d > (r_dish - 2.0)
-        if np.any(out):
-            p_r[out, 0] = cx + (dx[out]/d[out]) * (r_dish - 3.0)
-            p_r[out, 1] = cy + (dy[out]/d[out]) * (r_dish - 3.0)
-    samplers['Rotor-Only (κ = 0)'] = p_r
+            gvx = gx[iy, ix]
+            gvy = gy[iy, ix]
+            drift_x = sig * (-gvy * chir) - kap * gvx
+            drift_y = sig * (gvx * chir) - kap * gvy
+            p += dt * np.stack([drift_x, drift_y], axis=1) + np.random.randn(N, 2) * noise_amp
 
-    # 4. A-Block Full Clifford
-    p_a = np.random.randn(N, 2) * 3.0 + np.array([seed_x, seed_y])
-    chir_a = np.random.choice([-1.0, 1.0], size=N)
-    for t in range(T):
-        if t % 5 == 0: trajectories['A-Block Full Clifford (Ours)'].append(p_a[0].copy())
-        ix = np.clip(np.round(p_a[:, 0]).astype(int), 0, W-1)
-        iy = np.clip(np.round(p_a[:, 1]).astype(int), 0, H-1)
-        gvx = gx[iy, ix]; gvy = gy[iy, ix]
-        drift_x = 11.0 * (-gvy * chir_a) - 1.8 * gvx
-        drift_y = 11.0 * (gvx * chir_a) - 1.8 * gvy
-        p_a += dt * np.stack([drift_x, drift_y], axis=1) + np.random.randn(N, 2) * noise_amp
-        dx = p_a[:, 0] - cx; dy = p_a[:, 1] - cy; d = np.sqrt(dx**2 + dy**2)
-        out = d > (r_dish - 2.0)
-        if np.any(out):
-            p_a[out, 0] = cx + (dx[out]/d[out]) * (r_dish - 3.0)
-            p_a[out, 1] = cy + (dy[out]/d[out]) * (r_dish - 3.0)
-    samplers['A-Block Full Clifford (Ours)'] = p_a
+            # Standardized circular aperture confinement across all 4 methods
+            dx = p[:, 0] - cx
+            dy = p[:, 1] - cy
+            d = np.sqrt(dx**2 + dy**2)
+            out = d > (r_dish - 2.0)
+            if np.any(out):
+                p[out, 0] = cx + (dx[out] / d[out]) * (r_dish - 3.0)
+                p[out, 1] = cy + (dy[out] / d[out]) * (r_dish - 3.0)
 
-    # Metrics
-    for name in names:
-        pts = samplers[name]
-        ix = np.clip(np.round(pts[:, 0]).astype(int), 0, W-1)
-        iy = np.clip(np.round(pts[:, 1]).astype(int), 0, H-1)
+        samplers[name] = p
+
+        ix = np.clip(np.round(p[:, 0]).astype(int), 0, W - 1)
+        iy = np.clip(np.round(p[:, 1]).astype(int), 0, H - 1)
         prec = mask[iy, ix].mean() * 100.0
-        cov_grid = np.zeros_like(mask)
+
+        # Terminal coverage (r=8px particle footprint)
+        term_grid = np.zeros_like(mask)
         for px, py in zip(ix, iy):
             if mask[py, px] > 0.5:
-                cov_grid[max(0, py-8):min(H, py+9), max(0, px-8):min(W, px+9)] = 1.0
-        cov = (cov_grid * mask).sum() / mask.sum() * 100.0
-        metrics[name] = {'precision': round(float(prec), 1), 'coverage': round(float(cov), 1)}
-        print(f"[{name:<27}] In-Glyph Precision: {prec:5.1f}% | Stroke Coverage: {cov:5.1f}%")
+                term_grid[max(0, py - 8):min(H, py + 9), max(0, px - 8):min(W, px + 9)] = 1.0
+        term_cov = (term_grid * mask).sum() / mask.sum() * 100.0
+
+        # Cumulative trajectory visitation (exact pixel visitation over t in [0, T])
+        vis_cov = (visited_exact * mask).sum() / mask.sum() * 100.0
+
+        metrics[name] = {
+            'precision_pct': round(float(prec), 1),
+            'trajectory_visitation_pct': round(float(vis_cov), 1),
+            'terminal_coverage_pct': round(float(term_cov), 1)
+        }
+        print(
+            f"[{name:<28}] Precision: {prec:5.1f}% | "
+            f"Trajectory Visitation: {vis_cov:5.1f}% | Terminal Coverage: {term_cov:5.1f}%"
+        )
 
     return samplers, trajectories, metrics, (seed_x, seed_y)
+
 
 def make_typography_figure(V, mask, dish_info, samplers, trajectories, metrics, seed_pt, out_pdf, out_png):
     plt.rcParams.update({
@@ -162,9 +123,9 @@ def make_typography_figure(V, mask, dish_info, samplers, trajectories, metrics, 
     panel_labels = ['(a)', '(b)', '(c)', '(d)']
     equations = [
         r'$\mathbf{f} = \mathbf{0}$',
-        r'$\mathbf{f} = -\nabla V_\theta$',
-        r'$\mathbf{f} = \sigma I \nabla V_\theta$',
-        r'$\mathbf{f} = (\sigma I - \kappa)\nabla V_\theta$',
+        r'$\mathbf{f} = -\nabla V$',
+        r'$\mathbf{f} = \sigma I \nabla V$',
+        r'$\mathbf{f} = (\sigma I - \kappa)\nabla V$',
     ]
     verdicts = [
         'Isotropic Dispersion',
@@ -201,9 +162,10 @@ def make_typography_figure(V, mask, dish_info, samplers, trajectories, metrics, 
                 fontsize=9.5, ha='right', va='top', color='#1E293B',
                 bbox=dict(boxstyle='round,pad=0.2', facecolor='white', edgecolor='#CBD5E1', alpha=0.92, lw=0.6))
 
-        cov_val = metrics[name]['coverage']
-        ax.text(0.96, 0.83, f"Coverage: {cov_val:.1f}%", transform=ax.transAxes,
-                fontsize=8.5, fontweight='bold', ha='right', va='top',
+        vis_val = metrics[name]['trajectory_visitation_pct']
+        prec_val = metrics[name]['precision_pct']
+        ax.text(0.96, 0.83, f"Visit: {vis_val:.1f}% | Prec: {prec_val:.1f}%", transform=ax.transAxes,
+                fontsize=7.8, fontweight='bold', ha='right', va='top',
                 color='#059669' if is_winner else '#475569',
                 bbox=dict(boxstyle='round,pad=0.18', facecolor='#F8FAFC',
                           edgecolor='#10B981' if is_winner else '#CBD5E1', alpha=0.92, lw=0.8))
@@ -246,13 +208,22 @@ def make_typography_figure(V, mask, dish_info, samplers, trajectories, metrics, 
     plt.close()
     print(f"Generated Typography benchmark figure: {out_pdf}")
 
+
 def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    V, mask, dish_info = build_glyph_potential(resolution=400)
+    out_dir = os.path.join(base_dir, 'output')
+    os.makedirs(out_dir, exist_ok=True)
+
+    V, mask, dish_info = build_glyph_potential(resolution=400, char='G')
     samplers, trajectories, metrics, seed_pt = run_typography_simulation(V, mask, dish_info, N=1200, T=4000)
-    
-    out_pdf = os.path.join(base_dir, 'typography_kinetic_trap_benchmark_1x4.pdf')
-    out_png = os.path.join(base_dir, 'typography_kinetic_trap_benchmark_1x4.png')
+
+    json_path = os.path.join(out_dir, 'typography_metrics.json')
+    with open(json_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    print(f"Saved Typography metrics to {json_path}")
+
+    out_pdf = os.path.join(out_dir, 'figure3_typography_benchmark.pdf')
+    out_png = os.path.join(out_dir, 'figure3_typography_benchmark.png')
     make_typography_figure(V, mask, dish_info, samplers, trajectories, metrics, seed_pt, out_pdf, out_png)
 
 if __name__ == '__main__':

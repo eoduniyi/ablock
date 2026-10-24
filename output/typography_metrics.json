@@ -1,18 +1,22 @@
 {
   "Brownian Dynamics": {
-    "precision": 53.2,
-    "coverage": 42.1
+    "precision_pct": 26.1,
+    "trajectory_visitation_pct": 99.3,
+    "terminal_coverage_pct": 90.5
   },
   "Standard Langevin": {
-    "precision": 99.9,
-    "coverage": 22.7
+    "precision_pct": 98.9,
+    "trajectory_visitation_pct": 33.2,
+    "terminal_coverage_pct": 33.7
   },
   "Rotor-Only (\u03ba = 0)": {
-    "precision": 42.8,
-    "coverage": 64.6
+    "precision_pct": 0.1,
+    "trajectory_visitation_pct": 100.0,
+    "terminal_coverage_pct": 1.4
   },
   "A-Block Full Clifford (Ours)": {
-    "precision": 100.0,
-    "coverage": 54.2
+    "precision_pct": 99.9,
+    "trajectory_visitation_pct": 97.8,
+    "terminal_coverage_pct": 99.2
   }
 }
