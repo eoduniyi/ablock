@@ -1,14 +1,15 @@
 import torch
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from scipy.ndimage import distance_transform_edt, gaussian_filter
+import scipy.ndimage as ndi
 
 class MolecularMultiWellPotential:
     """
     Canonical 3-Basin Conformational Free-Energy Surface.
-    Basin A: (-1.0, 1.0)
-    Basin B: (1.0, -0.5)
-    Basin C: (-0.5, -1.0)
+    Basin A: (-1.0, 1.0), depth = 3.5 kcal/mol, width = 0.55
+    Basin B: (1.0, -0.5), depth = 4.0 kcal/mol, width = 0.60
+    Basin C: (-0.5, -1.0), depth = 3.2 kcal/mol, width = 0.50
+    Harmonic confinement: 0.20 * ||x||^2
     """
     def __init__(self, device='cpu'):
         self.device = device
@@ -37,78 +38,58 @@ class MolecularMultiWellPotential:
         grad = torch.autograd.grad(v.sum(), x_req)[0]
         return grad
 
+    def true_score(self, x):
+        return -self.compute_gradient(x)
 
-class GlyphPotential:
+
+def build_glyph_potential(resolution=400, char='G'):
     """
     Non-Convex Typography Glyph Potential ('G') with circular boundary confinement.
-    Creates an energy landscape where stroke interior has low potential,
-    boundary has steep potential, and circular aperture acts as hard outer wall.
+    Returns:
+      V: (H, W) float array of potential values
+      mask: (H, W) binary float array of glyph stroke interior
+      dish_info: (cx, cy, r_dish) aperture geometry
     """
-    def __init__(self, size=256, extent=2.4, device='cpu'):
-        self.size = size
-        self.extent = extent
-        self.device = device
-        self._build_grid()
-        self._rasterize_glyph()
+    img = Image.new('L', (resolution, resolution), color=0)
+    draw = ImageDraw.Draw(img)
+    font = None
+    for p in [
+        '/System/Library/Fonts/Helvetica.ttc',
+        '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
+        '/System/Library/Fonts/Supplemental/Arial.ttf',
+        '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+    ]:
+        try:
+            font = ImageFont.truetype(p, int(resolution * 0.70))
+            break
+        except Exception:
+            pass
+    if font is None:
+        font = ImageFont.load_default()
 
-    def _build_grid(self):
-        lin = np.linspace(-self.extent, self.extent, self.size)
-        self.X, self.Y = np.meshgrid(lin, -lin)
-        self.dx = 2.0 * self.extent / (self.size - 1)
+    bbox = draw.textbbox((0, 0), char, font=font)
+    w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    draw.text(((resolution - w) / 2 - bbox[0], (resolution - h) / 2 - bbox[1]), char, fill=255, font=font)
+    mask = (np.array(img) > 128).astype(float)
+    H, W = mask.shape
 
-    def _rasterize_glyph(self):
-        img = Image.new('L', (self.size, self.size), color=0)
-        draw = ImageDraw.Draw(img)
-        font_size = int(self.size * 0.78)
-        font = None
-        for font_path in [
-            "/System/Library/Fonts/Helvetica.ttc",
-            "/System/Library/Fonts/Supplemental/Arial.ttf",
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-        ]:
-            try:
-                font = ImageFont.truetype(font_path, font_size)
-                break
-            except Exception:
-                pass
-        if font is None:
-            font = ImageFont.load_default()
+    density = ndi.gaussian_filter(mask, sigma=7.5)
+    density = density / density.max()
+    V = -np.log(density + 1e-3)
 
-        bbox = draw.textbbox((0, 0), "G", font=font)
-        w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-        x_pos = (self.size - w) / 2 - bbox[0]
-        y_pos = (self.size - h) / 2 - bbox[1] - 0.05 * self.size
-        draw.text((x_pos, y_pos), "G", fill=255, font=font)
-        
-        glyph_mask = np.array(img) > 128
-        self.glyph_mask = glyph_mask
-        
-        dist_in = distance_transform_edt(glyph_mask)
-        dist_out = distance_transform_edt(~glyph_mask)
-        signed_dist = dist_in - dist_out
-        
-        density = 1.0 / (1.0 + np.exp(-0.4 * signed_dist))
-        density_smooth = gaussian_filter(density, sigma=2.0)
-        
-        r = np.sqrt(self.X**2 + self.Y**2)
-        v_field = -np.log(density_smooth + 1e-3)
-        v_field += 0.8 * np.maximum(0, r - 1.8)**2
-        v_field += 5.0 * np.maximum(0, r - 2.15)**3
-        
-        self.V_grid = torch.tensor(v_field, dtype=torch.float32, device=self.device)
-        gy, gx = np.gradient(v_field, self.dx, -self.dx)
-        self.grad_x_grid = torch.tensor(gx, dtype=torch.float32, device=self.device)
-        self.grad_y_grid = torch.tensor(gy, dtype=torch.float32, device=self.device)
+    y_coords, x_coords = np.ogrid[:H, :W]
+    cx, cy = W / 2.0, H / 2.0
+    r_dish = min(H, W) * 0.44
+    dish_dist = np.sqrt((x_coords - cx)**2 + (y_coords - cy)**2)
+    dish_wall = np.maximum(0, dish_dist - r_dish)
+    V += (dish_wall**2) * 0.08
 
-    def evaluate_grad(self, x):
-        px = ((x[:, 0] + self.extent) / (2 * self.extent) * (self.size - 1)).clamp(0, self.size - 1).long()
-        py = ((-x[:, 1] + self.extent) / (2 * self.extent) * (self.size - 1)).clamp(0, self.size - 1).long()
-        gx = self.grad_x_grid[py, px]
-        gy = self.grad_y_grid[py, px]
-        return torch.stack([gx, gy], dim=1)
+    return V, mask, (cx, cy, r_dish)
 
-    def is_in_glyph(self, x):
-        px = ((x[:, 0] + self.extent) / (2 * self.extent) * (self.size - 1)).clamp(0, self.size - 1).long()
-        py = ((-x[:, 1] + self.extent) / (2 * self.extent) * (self.size - 1)).clamp(0, self.size - 1).long()
-        mask_t = torch.tensor(self.glyph_mask, device=x.device)
-        return mask_t[py, px]
+
+class GlyphPotential:
+    """Wrapper class around build_glyph_potential for unit tests and modular use."""
+    def __init__(self, resolution=400, char='G'):
+        self.resolution = resolution
+        self.V, self.glyph_mask, self.dish_info = build_glyph_potential(resolution=resolution, char=char)
+        self.gy, self.gx = np.gradient(self.V)

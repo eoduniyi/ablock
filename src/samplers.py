@@ -1,61 +1,82 @@
-import torch
+import time
 import numpy as np
-from .models import apply_clifford_rotor_dilator
+import torch
+from .metrics import calc_basin_masks
 
-def simulate_ensemble(
+def simulate_multiwell_ensemble(
     method,
-    grad_or_score_fn,
+    model,
     x_init,
-    num_steps=6000,
-    dt=0.005,
-    temp=1.0,
-    gamma=1.0,
-    kappa=0.6,
-    sigma=1.2,
-    device='cpu'
+    num_steps=1000,
+    dt=0.015,
+    kBT=0.6,
+    gamma=1.0
 ):
     """
-    Simulates stochastic particle ensemble under different sampling dynamics.
-    
-    Methods:
-      - 'brownian': Unconditional Brownian diffusion (f = 0)
-      - 'langevin': Standard score-guided Langevin (f = -grad V)
-      - 'rotor_only': Rotor ablation (kappa = 0, f = sigma * I * grad V)
-      - 'ablock': Full Clifford A-Block (f = (sigma * I - kappa) * grad V)
+    Simulates a particle ensemble on the 3-basin conformational landscape.
+    Supported methods:
+      - 'brownian': f = 0
+      - 'langevin': f = -grad V_theta
+      - 'dilator_only': f = -kappa * grad V_theta (matched contraction, sigma = 0)
+      - 'rotor_only': f = sigma * I * grad V_theta (kappa = 0)
+      - 'ablock': f = (sigma * I - kappa) * grad V_theta
+    Returns:
+      x_final, trajectory, elapsed_sec, stats_dict
     """
-    N = x_init.shape[0]
-    x = x_init.clone().to(device)
-    trajectory = [x.clone().cpu()]
+    x = x_init.clone()
+    num_agents = x.shape[0]
+    noise_amp = np.sqrt(2.0 * kBT * dt / gamma)
     
-    # Random initial chirality (+1 or -1) for rotor methods
-    chirality = (torch.randint(0, 2, (N, 1), device=device) * 2 - 1).float()
+    trajectory = []
+    visited_BC = torch.zeros(num_agents, dtype=torch.bool)
+    last_basin = torch.zeros(num_agents, dtype=torch.long)
+    transitions = 0
     
-    diff_coeff = np.sqrt(2.0 * temp * gamma * dt)
-
+    t0 = time.time()
     for step in range(num_steps):
-        # Neural score or negative gradient
-        # Note: score = -grad V, so grad V = -score
-        score = grad_or_score_fn(x)
-        
-        if method == 'brownian':
-            deterministic_force = torch.zeros_like(x)
-        elif method == 'langevin':
-            # Standard Langevin drift: gamma * score = -gamma * grad V
-            deterministic_force = gamma * score
-        elif method == 'rotor_only':
-            # Rotor only: kappa = 0
-            deterministic_force = apply_clifford_rotor_dilator(score, kappa=0.0, sigma=sigma, chirality=chirality)
-        elif method == 'ablock':
-            # Full Clifford A-Block: both dilator (-kappa grad V) and rotor (sigma I grad V)
-            deterministic_force = apply_clifford_rotor_dilator(score, kappa=kappa, sigma=sigma, chirality=chirality)
-        else:
-            raise ValueError(f"Unknown sampling method: {method}")
-
-        noise = torch.randn_like(x) * diff_coeff
-        x = x + deterministic_force * dt + noise
-        
-        # Periodic recording (every 50 steps)
-        if (step + 1) % 50 == 0:
-            trajectory.append(x.clone().cpu())
+        if step % 2 == 0:
+            trajectory.append(x[0].detach().numpy().copy())
             
-    return x, trajectory
+        if method == 'brownian':
+            x = x + noise_amp * torch.randn_like(x)
+        elif method == 'langevin':
+            x_req = x.detach().requires_grad_(True)
+            V, _, _ = model(x_req)
+            gradV = torch.autograd.grad(V.sum(), x_req)[0]
+            x = x - (dt / gamma) * gradV + noise_amp * torch.randn_like(x)
+        elif method == 'dilator_only':
+            x_req = x.detach().requires_grad_(True)
+            V, _, kappa = model(x_req)
+            gradV = torch.autograd.grad(V.sum(), x_req)[0]
+            x = x - dt * kappa * gradV + noise_amp * torch.randn_like(x)
+        elif method == 'rotor_only':
+            x_req = x.detach().requires_grad_(True)
+            V, sigma, _ = model(x_req)
+            gradV = torch.autograd.grad(V.sum(), x_req)[0]
+            rotor_gradV = torch.stack([-gradV[:, 1], gradV[:, 0]], dim=1)
+            x = x + dt * (sigma * rotor_gradV) + noise_amp * torch.randn_like(x)
+        elif method == 'ablock':
+            x_req = x.detach().requires_grad_(True)
+            V, sigma, kappa = model(x_req)
+            gradV = torch.autograd.grad(V.sum(), x_req)[0]
+            rotor_gradV = torch.stack([-gradV[:, 1], gradV[:, 0]], dim=1)
+            flow = sigma * rotor_gradV - kappa * gradV
+            x = x + dt * flow + noise_amp * torch.randn_like(x)
+        else:
+            raise ValueError(f"Unknown method: {method}")
+            
+        inA, inB, inC = calc_basin_masks(x)
+        visited_BC |= (inB | inC)
+        new_basin = last_basin.clone()
+        new_basin[inA] = 0
+        new_basin[inB] = 1
+        new_basin[inC] = 2
+        transitions += int((new_basin != last_basin).sum().item())
+        last_basin = new_basin
+        
+    elapsed = time.time() - t0
+    stats = {
+        'visited_bc_pct': float(visited_BC.float().mean().item() * 100.0),
+        'transitions_per_particle': float(transitions / num_agents)
+    }
+    return x, trajectory, elapsed, stats
