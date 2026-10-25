@@ -7,6 +7,10 @@
 
 Official implementation for **"A-Block: Active Form Dynamics via Clifford Neural Score Matching"** by **Erick Oduniyi**, presented at the *Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS*.
 
+<p align="center">
+  <img src="paper/d.png" width="100%" alt="A-Block Multi-Aperture Active Form Ensemble (MAGIC)" />
+</p>
+
 ---
 
 ## Overview
@@ -51,7 +55,11 @@ pytest tests/ -v
 
 ## Benchmark Summary
 
-### Multi-Well Conformational Dynamics (Table 1)
+### Multi-Well Conformational Dynamics (Table 1 & Figure 1)
+
+<p align="center">
+  <img src="output/figure1_annotated_benchmark.png" width="100%" alt="Figure 1: Multi-Well Kinetic Trap Escape Benchmark" />
+</p>
 
 | Method | FES RMSE (kcal/mol) $\downarrow$ | $\mathcal{W}_1$ Distance $\downarrow$ | Cumul. B/C Visit. (%) $\uparrow$ | Transitions / Pt. $\uparrow$ |
 | :--- | :---: | :---: | :---: | :---: |
@@ -62,6 +70,10 @@ pytest tests/ -v
 | **A-Block Full Clifford (Ours)** | **1.059 ± 0.031** | 0.385 ± 0.016 | **99.7 ± 0.1%** | **22.48 ± 0.15** |
 
 ### Non-Convex Typography Navigation (`'G'`, Figure 3)
+
+<p align="center">
+  <img src="output/figure3_typography_benchmark.png" width="100%" alt="Figure 3: Non-Convex Typography Navigation Benchmark" />
+</p>
 
 | Method | In-Glyph Precision (%) $\uparrow$ | Trajectory Visitation (%) $\uparrow$ | Terminal Coverage (%) $\uparrow$ |
 | :--- | :---: | :---: | :---: |
