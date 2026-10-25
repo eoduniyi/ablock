@@ -75,7 +75,7 @@ pytest tests/ -v
 ## Repository Contents
 
 - `src/` — Core `Cl(2,0)` neural score network (`models.py`), potentials (`potentials.py`), DSM trainer (`training.py`), SDE integrators (`samplers.py`), and evaluation metrics (`metrics.py`).
-- `notebooks/` — Interactive Jupyter tutorials for multi-well DSM training and non-convex glyph navigation.
+- [`notebooks/00_ablock_guided_tour_and_sketches.ipynb`](notebooks/00_ablock_guided_tour_and_sketches.ipynb) — **Start Here:** Self-contained intuition builder with 5 minimal Python sketches, pre-rendered visual outputs, and a guided map to the codebase (`01` and `02` provide focused benchmark notebooks).
 - `interactive/` — Browser-based `p5.js` sketches for the multi-aperture `"MAGIC"` ensemble (`magic_apertures/`) and the $O(N^2)$ vs. $O(N)$ point-measure visualizer (`proposition1_visualizer/`).
 - `paper/` — Camera-ready LaTeX source (`main.tex`) and compiled manuscript (`main.pdf`).
 - [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) & [`PROVENANCE.md`](PROVENANCE.md) — Detailed mathematical derivations, Fokker–Planck stationarity analysis, and parameter provenance.
