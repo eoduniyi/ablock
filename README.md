@@ -1,11 +1,11 @@
-# A-Block: Clifford Neural Score Matching for Multi-Well Conformational Dynamics and Active Particle Sampling
+# A-Block: Active Form Dynamics via Clifford Neural Score Matching
 
 [![ML4PS 2026](https://img.shields.io/badge/NeurIPS_2026-ML4PS_Accepted-059669.svg)](https://openreview.net/forum?id=t1UaaGEPJB)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-blue.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-3776AB.svg)](https://www.python.org/)
 
 Official code, trained weights, interactive visualizers, and reproducibility repository for the paper:  
-**"A-Block: Clifford Neural Score Matching for Multi-Well Conformational Dynamics and Active Particle Sampling"**  
+**"A-Block: Active Form Dynamics via Clifford Neural Score Matching"**  
 **Erick Oduniyi** (*Massachusetts Institute of Technology*)  
 *Accepted at the Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS 2026.*
 
@@ -134,7 +134,7 @@ python3 reproduce_typography_figure3.py
 
 ```bibtex
 @inproceedings{oduniyi2026ablock,
-  title={A-Block: Clifford Neural Score Matching for Multi-Well Conformational Dynamics and Active Particle Sampling},
+  title={A-Block: Active Form Dynamics via Clifford Neural Score Matching},
   author={Oduniyi, Erick},
   booktitle={Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS},
   year={2026},

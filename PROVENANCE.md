@@ -1,6 +1,6 @@
-# Parameter & Artifact Provenance (`PROVENANCE.md`)
+xw# Parameter & Artifact Provenance (`PROVENANCE.md`)
 
-This document records the complete provenance of every physical parameter, neural network hyperparameter, integration setting, trained weight checkpoint, and visual figure in **"A-Block: Clifford Neural Score Matching for Multi-Well Conformational Dynamics and Active Particle Sampling"** (ML4PS @ NeurIPS 2026).
+This document records the complete provenance of every physical parameter, neural network hyperparameter, integration setting, trained weight checkpoint, and visual figure in **"A-Block: Active Form Dynamics via Clifford Neural Score Matching"** (ML4PS @ NeurIPS 2026).
 
 ---
 

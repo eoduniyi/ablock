@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use A-Block in your research, please cite our ML4PS @ NeurIPS 2026 paper."
-title: "A-Block: Clifford Neural Score Matching for Multi-Well Conformational Dynamics and Active Particle Sampling"
+title: "A-Block: Active Form Dynamics via Clifford Neural Score Matching"
 authors:
   - family-names: "Oduniyi"
     given-names: "Erick"
@@ -10,7 +10,7 @@ date-released: 2026-11-20
 url: "https://github.com/eoduniyi/ablock"
 preferred-citation:
   type: conference-paper
-  title: "A-Block: Clifford Neural Score Matching for Multi-Well Conformational Dynamics and Active Particle Sampling"
+  title: "A-Block: Active Form Dynamics via Clifford Neural Score Matching"
   authors:
     - family-names: "Oduniyi"
       given-names: "Erick"
