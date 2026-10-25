@@ -3,7 +3,6 @@
 This document provides a complete walkthrough and exact instructions for reproducing the theoretical and empirical results reported in:
 
 > **"A-Block: Active Form Dynamics via Clifford Neural Score Matching"**  
-> Erick Oduniyi (Massachusetts Institute of Technology)  
 > *Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS 2026*.
 
 ---

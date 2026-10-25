@@ -5,7 +5,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org/)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-Official implementation for **"A-Block: Active Form Dynamics via Clifford Neural Score Matching"** by **Erick Oduniyi** (*Massachusetts Institute of Technology*), presented at the *Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS*.
+Official implementation for **"A-Block: Active Form Dynamics via Clifford Neural Score Matching"** by **Erick Oduniyi**, presented at the *Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS*.
 
 ---
 
