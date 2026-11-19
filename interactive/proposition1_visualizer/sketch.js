@@ -1,5 +1,5 @@
 /**
- * PROPOSITION 1 — Progressive Disclosure, Typography & Motion
+ * INDEPENDENT-PARTICLE COMPLEXITY SKETCH — Progressive Disclosure & Motion
  *
  * Fixed typewriter: parent .proof-line never uses opacity to hide content.
  * Instead, individual .type-char spans start at opacity:0 and illuminate
@@ -90,14 +90,14 @@ const LENSES = {
   systems: {
     key: 'systems',
     label: 'SYSTEMS',
-    subtitle: '(Linear-Time Particle Updates)',
-    tooltip: 'Systems lens: Bypasses the O(N²) all-pairs bottleneck for real-time parallel scaling.'
+    subtitle: '(Independent Field Evaluations)',
+    tooltip: 'Both standard Langevin and A-Block use O(N) field evaluations here; an explicit all-pairs graph is a different computation.'
   },
   mechanistic: {
     key: 'mechanistic',
     label: 'MECHANISTIC',
     subtitle: '(Independent Particle Dynamics)',
-    tooltip: 'Mechanistic lens: Local Clifford score rotors and neural gradients decouple pairwise graph edges.'
+    tooltip: 'Mechanistic lens: Independent updates do not evaluate pairwise edges; A-Block adds rotor-dilator arithmetic to the shared field evaluation.'
   }
 };
 
@@ -717,17 +717,17 @@ function updateTelemetry(animate) {
   const apply = () => {
     switch (currentStep) {
       case 0:
-        reg.innerHTML = currentLens === 'systems' ? "Systems Lens" : "Mechanistic Lens";
+        reg.innerHTML = currentLens === 'systems' ? "Complexity Sketch" : "Update Mechanics";
         cost.innerHTML = currentLens === 'systems'
-          ? "Linear-time updates (Hotkey: <kbd>M</kbd> to toggle)"
-          : "Independent score rotors (Hotkey: <kbd>M</kbd> to toggle)";
+          ? "Both samplers: O(N) field evaluations (Hotkey: <kbd>M</kbd>)"
+          : "A-Block adds rotor-dilator arithmetic (Hotkey: <kbd>M</kbd>)";
         break;
       case 1: reg.innerHTML = renderMath("G_\\varepsilon \\;\\text{[Metric Graph]}"); cost.innerHTML = `${renderMath("\\binom{N}{2}=" + ev)} all-pairs`; break;
-      case 2: reg.innerHTML = renderMath("\\text{A-Block } (\\mathcal{T})"); cost.innerHTML = `Decoupled measure: strictly ${renderMath("\\mathcal{O}(N)=" + n)}`; break;
+      case 2: reg.innerHTML = renderMath("\\text{Independent updates}"); cost.innerHTML = `Both methods: ${renderMath("\\mathcal{O}(N)=" + n)} field evaluations`; break;
       case 3: reg.innerHTML = renderMath("\\mathbf{A}_{ij}\\;\\text{[Adjacency]}"); cost.innerHTML = `Quadratic ${renderMath("\\mathcal{O}(N^2)")}`; break;
-      case 4: reg.innerHTML = renderMath("\\mathbf{f}_i\\;\\text{[Clifford Rotor]}"); cost.innerHTML = `Linear ${renderMath("\\mathcal{O}(N)")}`; break;
-      case 5: reg.innerHTML = renderMath("\\textstyle\\sum_k\\;\\text{[Ensemble]}"); cost.innerHTML = renderMath("\\mathcal{O}(N_{\\text{total}})"); break;
-      case 6: reg.innerHTML = renderMath("\\mu_\\infty\\;\\text{[Equilibrium]}"); cost.innerHTML = "Halmos stationarity"; break;
+      case 4: reg.innerHTML = renderMath("\\mathbf{f}_i\\;\\text{[Clifford Rotor]}"); cost.innerHTML = `A-Block adds arithmetic; still ${renderMath("\\mathcal{O}(N)")}`; break;
+      case 5: reg.innerHTML = renderMath("\\textstyle\\sum_k\\;\\text{[Independent modules]}"); cost.innerHTML = `${renderMath("\\mathcal{O}(N_{\\text{total}})")} if uncoupled`; break;
+      case 6: reg.innerHTML = renderMath("\\mu_T\\;\\text{[Finite-time ensemble]}"); cost.innerHTML = "Target stationarity not established"; break;
     }
   };
 

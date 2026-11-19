@@ -9,7 +9,8 @@ Simulates multi-well conformational dynamics across 5 sampling configurations:
   5. Full Clifford A-Block (f = (sigma * I - kappa) * grad V_theta)
 
 Generates:
-  - output/table1_results.json (Canonical seed-42 & 5-seed mean ± std + sensitivity checks)
+  - output/table1_results.json (Canonical seed-42 metrics and 5-seed standard deviations)
+  - output/timestep_sensitivity.json (Seed-42 fixed-physical-horizon timestep diagnostic)
   - output/figure1_annotated_benchmark.pdf / .png
 """
 
@@ -27,6 +28,7 @@ from src.samplers import simulate_multiwell_ensemble
 from src.metrics import calc_sliced_w1, calc_fes_rmse, calc_basin_coverage
 
 potential_fn = MolecularMultiWellPotential()
+EVALUATION_SEEDS = (42, 43, 44, 45, 46)
 
 
 def run_canonical_and_multiseed(model, num_agents=2000, num_steps=1000, dt=0.015, kBT=0.6):
@@ -43,16 +45,14 @@ def run_canonical_and_multiseed(model, num_agents=2000, num_steps=1000, dt=0.015
 
     samplers = {}
     trajectories = {}
-    times = {}
     extra_stats = {}
 
     for name, m_code in canonical_order:
-        x_f, traj, t_sec, st = simulate_multiwell_ensemble(
+        x_f, traj, _, st = simulate_multiwell_ensemble(
             m_code, model, x_init_canonical, num_steps=num_steps, dt=dt, kBT=kBT, gamma=gamma
         )
         samplers[name] = x_f
         trajectories[name] = traj
-        times[name] = t_sec
         extra_stats[name] = st
 
     # Reference Boltzmann equilibrium particles (drawn right after the 4 canonical runs)
@@ -77,12 +77,11 @@ def run_canonical_and_multiseed(model, num_agents=2000, num_steps=1000, dt=0.015
 
     # Now run the Dilator-Only (Matched Contraction: sigma=0, kappa) ablation
     d_name = 'Dilator-Only (\\sigma = 0, \\kappa)'
-    x_f, traj, t_sec, st = simulate_multiwell_ensemble(
+    x_f, traj, _, st = simulate_multiwell_ensemble(
         'dilator_only', model, x_init_canonical, num_steps=num_steps, dt=dt, kBT=kBT, gamma=gamma
     )
     samplers[d_name] = x_f
     trajectories[d_name] = traj
-    times[d_name] = t_sec
     extra_stats[d_name] = st
     s_np = x_f.detach().numpy()
     canonical_metrics[d_name] = (
@@ -99,10 +98,9 @@ def run_canonical_and_multiseed(model, num_agents=2000, num_steps=1000, dt=0.015
         ('Rotor-Only (\\kappa = 0)', 'rotor_only'),
         ('A-Block Full Clifford (Ours)', 'ablock')
     ]
-    seeds = [42, 43, 44, 45, 46]
-    multiseed = {name: {'w1': [], 'rmse35': [], 'rmse25': [], 'rmse50': [], 'cov': [], 'vis': [], 'trans': [], 'time': []} for name, _ in all_methods}
+    multiseed = {name: {'w1': [], 'rmse35': [], 'rmse25': [], 'rmse50': [], 'cov': [], 'vis': [], 'trans': []} for name, _ in all_methods}
 
-    for sd in seeds:
+    for sd in EVALUATION_SEEDS:
         torch.manual_seed(sd)
         np.random.seed(sd)
         x_init_s = torch.tensor([-1.0, 1.0]).repeat(num_agents, 1) + 0.15 * torch.randn(num_agents, 2)
@@ -111,7 +109,7 @@ def run_canonical_and_multiseed(model, num_agents=2000, num_steps=1000, dt=0.015
         for name, m_code in all_methods:
             torch.manual_seed(sd + 100)
             np.random.seed(sd + 100)
-            xf_s, _, t_s, st_s = simulate_multiwell_ensemble(
+            xf_s, _, _, st_s = simulate_multiwell_ensemble(
                 m_code, model, x_init_s, num_steps=num_steps, dt=dt, kBT=kBT, gamma=gamma
             )
             pts_s = xf_s.detach().numpy()
@@ -122,29 +120,34 @@ def run_canonical_and_multiseed(model, num_agents=2000, num_steps=1000, dt=0.015
             multiseed[name]['cov'].append(calc_basin_coverage(xf_s))
             multiseed[name]['vis'].append(st_s['visited_bc_pct'])
             multiseed[name]['trans'].append(st_s['transitions_per_particle'])
-            multiseed[name]['time'].append(t_s)
 
     results = {}
     print("\n" + "=" * 115)
-    print("Table 1 Benchmark Results (Canonical Seed-42 & 5-Seed Mean ± Std):")
+    print("Table 1 Benchmark Results (Seed-42 Values ± 5-Seed Standard Deviation):")
     print(f"{'Method':<34} | {'W1 (↓)':<13} | {'FES RMSE (↓)':<14} | {'Term B/C (%)':<14} | {'Visit B/C (%)':<14} | {'Trans/pt':<11}")
     print("-" * 115)
     for name, _ in all_methods:
         w1_c, rmse_c, cov_c = canonical_metrics[name]
         ms = multiseed[name]
         results[name] = {
-            'Wasserstein_1_Distance': round(w1_c, 3),
-            'Wasserstein_1_Mean_Std': f"{w1_c:.3f} ± {np.std(ms['w1']):.3f}",
-            'FES_Basin_RMSE_kcal_mol': round(rmse_c, 3),
-            'FES_Basin_RMSE_Mean_Std': f"{rmse_c:.3f} ± {np.std(ms['rmse35']):.3f}",
-            'FES_RMSE_bins25': round(float(np.mean(ms['rmse25'])), 3),
-            'FES_RMSE_bins50': round(float(np.mean(ms['rmse50'])), 3),
-            'Multi_Basin_Coverage_pct': round(cov_c, 1),
-            'Multi_Basin_Coverage_Mean_Std': f"{cov_c:.1f} ± {np.std(ms['cov']):.1f}%",
-            'Trajectory_Visitation_BC_pct': round(float(extra_stats[name]['visited_bc_pct']), 1),
-            'Transitions_per_particle': round(float(extra_stats[name]['transitions_per_particle']), 2),
-            'Transitions_Mean_Std': f"{extra_stats[name]['transitions_per_particle']:.2f} ± {np.std(ms['trans']):.2f}",
-            'Time_sec': round(times[name], 4)
+            'Wasserstein_1_Distance_seed42': round(w1_c, 3),
+            'Wasserstein_1_seed42_5seed_std': f"{w1_c:.3f} ± {np.std(ms['w1']):.3f}",
+            'FES_Basin_RMSE_kcal_mol_seed42': round(rmse_c, 3),
+            'FES_Basin_RMSE_seed42_5seed_std': f"{rmse_c:.3f} ± {np.std(ms['rmse35']):.3f}",
+            'FES_RMSE_bins25_seed42': round(
+                calc_fes_rmse(samplers[name].detach().numpy(), potential_fn, kBT=kBT, bins=25), 3
+            ),
+            'FES_RMSE_bins25_Mean_Std': f"{np.mean(ms['rmse25']):.3f} ± {np.std(ms['rmse25']):.3f}",
+            'FES_RMSE_bins50_seed42': round(
+                calc_fes_rmse(samplers[name].detach().numpy(), potential_fn, kBT=kBT, bins=50), 3
+            ),
+            'FES_RMSE_bins50_Mean_Std': f"{np.mean(ms['rmse50']):.3f} ± {np.std(ms['rmse50']):.3f}",
+            'Terminal_BC_Occupancy_pct_seed42': round(cov_c, 1),
+            'Terminal_BC_Occupancy_seed42_5seed_std': f"{cov_c:.1f} ± {np.std(ms['cov']):.1f}%",
+            'Trajectory_Visitation_BC_pct_seed42': round(float(extra_stats[name]['visited_bc_pct']), 1),
+            'Trajectory_Visitation_BC_seed42_5seed_std': f"{extra_stats[name]['visited_bc_pct']:.1f} ± {np.std(ms['vis']):.1f}%",
+            'Transitions_per_particle_seed42': round(float(extra_stats[name]['transitions_per_particle']), 2),
+            'Transitions_seed42_5seed_std': f"{extra_stats[name]['transitions_per_particle']:.2f} ± {np.std(ms['trans']):.2f}"
         }
         print(
             f"{name:<34} | {w1_c:.3f}±{np.std(ms['w1']):.3f} | "
@@ -156,6 +159,60 @@ def run_canonical_and_multiseed(model, num_agents=2000, num_steps=1000, dt=0.015
     print("=" * 115)
 
     return results, samplers, trajectories
+
+
+def run_small_timestep_sensitivity(model, num_agents=2000, kBT=0.6):
+    """Reproduce the fixed-seed, equal-physical-horizon timestep comparison."""
+    seed = 42
+    dt = 0.005
+    num_steps = 3000
+    gamma = 1.0
+    methods = [
+        ('Standard Langevin (f = -\\nabla V)', 'langevin'),
+        ('Dilator-Only (\\sigma = 0, \\kappa)', 'dilator_only'),
+        ('A-Block Full Clifford (Ours)', 'ablock')
+    ]
+
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    x_init = torch.tensor([-1.0, 1.0]).repeat(num_agents, 1) + 0.15 * torch.randn(num_agents, 2)
+
+    gx = torch.linspace(-2.2, 2.2, 80)
+    gy = torch.linspace(-2.2, 2.2, 80)
+    GX, GY = torch.meshgrid(gx, gy, indexing='ij')
+    grid_pts = torch.stack([GX.ravel(), GY.ravel()], dim=1)
+    prob_gt = torch.exp(-potential_fn(grid_pts) / kBT)
+    prob_gt /= prob_gt.sum()
+    torch.manual_seed(seed + 1)
+    gt_particles = grid_pts[torch.multinomial(prob_gt, num_samples=num_agents, replacement=True)].numpy()
+
+    results = {}
+    for name, method in methods:
+        torch.manual_seed(seed + 100)
+        np.random.seed(seed + 100)
+        x_final, _, _, stats = simulate_multiwell_ensemble(
+            method, model, x_init, num_steps=num_steps, dt=dt, kBT=kBT, gamma=gamma
+        )
+        points = x_final.detach().numpy()
+        results[name] = {
+            'FES_RMSE_kcal_mol_bins35': round(calc_fes_rmse(points, potential_fn, kBT=kBT, bins=35), 3),
+            'Sliced_Wasserstein_1': round(calc_sliced_w1(points, gt_particles), 3),
+            'Terminal_BC_Occupancy_pct': round(calc_basin_coverage(x_final), 1),
+            'Cumulative_BC_Visitation_pct': round(stats['visited_bc_pct'], 1),
+            'Transitions_per_particle': round(stats['transitions_per_particle'], 2)
+        }
+
+    return {
+        'metadata': {
+            'seed': seed,
+            'num_particles': num_agents,
+            'num_steps': num_steps,
+            'dt': dt,
+            'physical_horizon': num_steps * dt,
+            'kBT': kBT
+        },
+        'methods': results
+    }
 
 
 def make_figure1(samplers, trajectories, results, out_pdf, out_png):
@@ -232,7 +289,7 @@ def make_figure1(samplers, trajectories, results, out_pdf, out_png):
                 fontsize=9.5, ha='right', va='top', color='#1E293B',
                 bbox=dict(boxstyle='round,pad=0.2', facecolor='white', edgecolor='#CBD5E1', alpha=0.92, lw=0.6))
         
-        rmse_val = results[name]['FES_Basin_RMSE_kcal_mol']
+        rmse_val = results[name]['FES_Basin_RMSE_kcal_mol_seed42']
         ax.text(0.96, 0.83, f"FES RMSE: {rmse_val:.3f}", transform=ax.transAxes,
                 fontsize=8.5, fontweight='bold', ha='right', va='top',
                 color='#059669' if is_winner else '#475569',
@@ -290,9 +347,25 @@ def main():
     results, samplers, trajectories = run_canonical_and_multiseed(model)
     
     with open('output/table1_results.json', 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump({
+            'metadata': {
+                'training_seed': 42,
+                'evaluation_seeds': list(EVALUATION_SEEDS),
+                'summary_format': 'seed-42 values with population standard deviation across evaluation seeds',
+                'num_particles': 2000,
+                'num_steps': 1000,
+                'dt': 0.015,
+                'kBT': 0.6
+            },
+            'methods': results
+        }, f, indent=2)
     print("Saved Table 1 results to output/table1_results.json")
     
+    sensitivity = run_small_timestep_sensitivity(model)
+    with open('output/timestep_sensitivity.json', 'w') as f:
+        json.dump(sensitivity, f, indent=2)
+    print("Saved small-timestep sensitivity results to output/timestep_sensitivity.json")
+
     out_pdf = 'output/figure1_annotated_benchmark.pdf'
     out_png = 'output/figure1_annotated_benchmark.png'
     make_figure1(samplers, trajectories, results, out_pdf, out_png)

@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "seed": 42,
+    "num_particles": 2000,
+    "num_steps": 3000,
+    "dt": 0.005,
+    "physical_horizon": 15.0,
+    "kBT": 0.6
+  },
+  "methods": {
+    "Standard Langevin (f = -\\nabla V)": {
+      "FES_RMSE_kcal_mol_bins35": 1.503,
+      "Sliced_Wasserstein_1": 0.076,
+      "Terminal_BC_Occupancy_pct": 60.8,
+      "Cumulative_BC_Visitation_pct": 99.4,
+      "Transitions_per_particle": 25.73
+    },
+    "Dilator-Only (\\sigma = 0, \\kappa)": {
+      "FES_RMSE_kcal_mol_bins35": 1.058,
+      "Sliced_Wasserstein_1": 0.274,
+      "Terminal_BC_Occupancy_pct": 46.2,
+      "Cumulative_BC_Visitation_pct": 97.5,
+      "Transitions_per_particle": 16.14
+    },
+    "A-Block Full Clifford (Ours)": {
+      "FES_RMSE_kcal_mol_bins35": 1.041,
+      "Sliced_Wasserstein_1": 0.316,
+      "Terminal_BC_Occupancy_pct": 41.4,
+      "Cumulative_BC_Visitation_pct": 99.9,
+      "Transitions_per_particle": 25.99
+    }
+  }
+}

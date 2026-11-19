@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proposition 1 — Progressive Proof & Typography</title>
+  <title>A-Block Complexity Sketch</title>
   
   <!-- Typography: EB Garamond (scholarly serif), Inter (precision sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,31 +55,31 @@
     <article class="proof-plate" id="proof-plate">
       <!-- Line 0: Proposition Header -->
       <div class="proof-line line-0" data-step="0">
-        <h1 class="prop-title">Proposition 1</h1>
+        <h1 class="prop-title">Complexity Sketch</h1>
         <button class="prop-subtitle-btn" id="btn-prop-subtitle" title="Click to toggle perspective: Systems ⇄ Mechanistic (Hotkey: M)">
-          <span id="prop-subtitle-text">(Linear-Time Particle Updates)</span>
+          <span id="prop-subtitle-text">(Independent Field Evaluations)</span>
           <span id="prop-lens-badge" class="lens-badge">SYSTEMS</span>
         </button>
       </div>
 
-      <!-- Line 1: Proposition Statement - Part A (Metric Graph Dilemma) -->
+      <!-- Line 1: Explicit all-pairs graph cost -->
       <div class="proof-line line-1" data-step="1"><p class="statement-text">Evaluating pairwise distances across $N$ particles in a metric proximity graph $G_\varepsilon$ incurs $\binom{N}{2}$ operations ($\mathcal{O}(N^2)$).</p></div>
 
-      <!-- Line 2: Proposition Statement - Part B (The Measure Transformation Solution) -->
-      <div class="proof-line line-2" data-step="2"><p class="statement-text">In an A-Block, decoupling relational edges via the empirical measure transformation $\mathcal{T}$ and localized Clifford score updates $\mathbf{f}_i(\mathbf{x}_i) = (\sigma_i I - \kappa_i)\nabla V_\theta(\mathbf{x}_i)$ reduces per-frame sampling complexity to strictly $\mathcal{O}(N)$.</p></div>
+      <!-- Line 2: Cost of independent field evaluations -->
+      <div class="proof-line line-2" data-step="2"><p class="statement-text">When particles are updated independently in a shared field, evaluating the field costs $\mathcal{O}(N)$. This applies to both standard Langevin and A-Block; the rotor-dilator update adds constant-factor arithmetic.</p></div>
 
       <!-- Line 3: Proof Sketch - Prefix & Adjacency Matrix -->
       <div class="proof-line line-3" data-step="3"><p class="sketch-text"><span class="sketch-prefix">Proof Sketch.</span> In the metric graph regime, the adjacency matrix $\mathbf{A}_{ij} = \mathbb{I}(\|\mathbf{x}_i - \mathbf{x}_j\| < \varepsilon)$ requires $\binom{N}{2}$ all-pairs evaluations.</p></div>
 
-      <!-- Line 4: Proof Sketch - Transformation T and Independent Updates -->
-      <div class="proof-line line-4" data-step="4"><p class="sketch-text">Under transformation $\mathcal{T},$ each particle $\mathbf{x}_i$ is updated independently via the local neural gradient $\nabla V_\theta(\mathbf{x}_i)$ and algebraic rotor $(\sigma_i I - \kappa_i),$ requiring exactly $1$ forward-backward pass per particle.</p></div>
+      <!-- Line 4: Both samplers use independent field evaluations -->
+      <div class="proof-line line-4" data-step="4"><p class="sketch-text">Each particle requires a field evaluation; A-Block additionally combines the gradient with its rotor and dilator coefficients. No measured scaling crossover or runtime advantage is claimed.</p></div>
 
-      <!-- Line 5: Proof Sketch - Modular Ensemble Summation -->
-      <div class="proof-line line-5" data-step="5"><p class="sketch-text">For an ensemble of $K$ modular A-Blocks ($A_1, \dots, A_K$) with $N_k$ particles each, total compute cost scales as $\sum_{k=1}^K \mathcal{O}(N_k) = \mathcal{O}(N_{\text{total}})$.</p></div>
+      <!-- Line 5: Conditional cost of independent modules -->
+      <div class="proof-line line-5" data-step="5"><p class="sketch-text">For $K$ independent modules with $N_k$ particles each, field evaluations sum to $\sum_{k=1}^K \mathcal{O}(N_k)=\mathcal{O}(N_{\text{total}})$. This assumes no cross-module interactions.</p></div>
 
       <!-- Line 6: The Halmos Tombstone (∎ / Q.E.D. Terminus) -->
       <div class="proof-line line-6 tombstone-line" data-step="6">
-        <span class="tombstone-wrap" id="tombstone" role="button" tabindex="0" title="The Halmos Tombstone: Signifies the end of the proof. Click to trigger Q.E.D. crystallization.">
+        <span class="tombstone-wrap" id="tombstone" role="button" tabindex="0" title="End of the complexity illustration. Click to trigger the closing animation.">
           <span class="tombstone-glyph">∎</span>
           <span class="tombstone-sub">Q.E.D.</span>
         </span>

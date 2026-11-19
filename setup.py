@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="ablock",
     version="1.0.0",
-    description="A-Block: Active Form Dynamics via Clifford Neural Score Matching",
+    description="A-Block: Clifford Score Dynamics",
     author="Erick Oduniyi",
     author_email="erick000@media.mit.edu",
     url="https://github.com/eoduniyi/ablock",

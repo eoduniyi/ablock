@@ -1,11 +1,11 @@
-# A-Block: Active Form Dynamics via Clifford Neural Score Matching
+# A-Block: Clifford Score Dynamics
 
 [![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b.svg)](paper/main.pdf)
 [![OpenReview](https://img.shields.io/badge/OpenReview-ML4PS%20%40%20NeurIPS-8c1b13.svg)](https://openreview.net/forum?id=t1UaaGEPJB)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org/)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-Official implementation for **"A-Block: Active Form Dynamics via Clifford Neural Score Matching"** by **Erick Oduniyi**, presented at the *Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS*.
+Official implementation for **"A-Block: Clifford Score Dynamics"** by **Erick Oduniyi**, presented at the *Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS*.
 
 <p align="center">
   <img src="paper/d.png" width="100%" alt="A-Block Multi-Aperture Active Form Ensemble (MAGIC)" />
@@ -21,9 +21,11 @@ $$
 \mathbf{f}_i(\mathbf{x}_i) = (\sigma_i I - \kappa_i) \nabla V_\theta(\mathbf{x}_i), \qquad I = e_1 e_2 \; (I^2 = -1)
 $$
 
-particles circulate tangentially along equipotential contours ($\sigma I \nabla V_\theta$) while maintaining basin confinement ($-\kappa \nabla V_\theta$). This enables two operating regimes within a single $O(N)$ point-measure architecture:
-1. **Equilibrium Conformational Sampling:** Accelerates inter-basin saddle traversal and improves Free Energy Surface (FES) reconstruction across multi-well potentials (Figure 1, Table 1).
-2. **Non-Equilibrium Active Form Control:** Drives particle ensembles around sharp geometric traps into non-convex morphological attractors (Figures 2 & 3).
+particles circulate tangentially along equipotential contours ($\sigma I \nabla V_\theta$) while the dilator contracts along the potential gradient ($-\kappa \nabla V_\theta$). The current implementation is a finite-time sampler on a synthetic 2D landscape; it does not establish exact equilibrium sampling or molecular performance.
+1. **Synthetic Multi-Well Benchmark:** Compares finite-time FES reconstruction, distribution distance, basin occupancy, visitation, and transitions against Langevin and component ablations (Figure 1, Table 1).
+2. **Finite-Horizon Form Coverage:** Compares particle visitation and terminal coverage in a synthetic non-convex glyph potential (Figure 3); this benchmark does not establish a steady state.
+
+For independently updated particles, both A-Block and standard Langevin require $O(N)$ field evaluations per step; A-Block adds rotor-dilator arithmetic. This repository does not report a scaling crossover or a wall-clock efficiency advantage.
 
 ---
 
@@ -38,10 +40,10 @@ pip install -e .
 
 ### Reproducing Paper Figures & Benchmarks
 
-All experiments run deterministically on a standard CPU in under 90 seconds:
+The seeded benchmark scripts regenerate the metrics and figures. Runtime varies by hardware and is not used as a comparative result.
 
 ```bash
-# 1. Multi-well conformational sampling, ablations & Figure 1
+# 1. Multi-well benchmark, ablations, timestep sensitivity & Figure 1
 python3 reproduce_table1_and_figure1.py
 
 # 2. Non-convex typography navigation & Figure 3
@@ -55,19 +57,21 @@ pytest tests/ -v
 
 ## Benchmark Summary
 
-### Multi-Well Conformational Dynamics (Table 1 & Figure 1)
+### Synthetic Multi-Well Dynamics (Table 1 & Figure 1)
 
 <p align="center">
   <img src="output/figure1_annotated_benchmark.png" width="100%" alt="Figure 1: Multi-Well Kinetic Trap Escape Benchmark" />
 </p>
 
-| Method | FES RMSE (kcal/mol) $\downarrow$ | $\mathcal{W}_1$ Distance $\downarrow$ | Cumul. B/C Visit. (%) $\uparrow$ | Transitions / Pt. $\uparrow$ |
-| :--- | :---: | :---: | :---: | :---: |
-| **Brownian Dynamics** ($\mathbf{f} = \mathbf{0}$) | 2.572 ± 0.136 | 3.127 ± 0.035 | 56.4 ± 1.0% | 1.74 ± 0.06 |
-| **Standard Langevin** ($\kappa = 1, \sigma = 0$) | 1.476 ± 0.069 | **0.066 ± 0.008** | **99.7 ± 0.1%** | 21.47 ± 0.13 |
-| **Dilator-Only Ablation** ($\sigma = 0, \kappa$) | 1.064 ± 0.044 | 0.266 ± 0.026 | 96.9 ± 0.3% | 13.86 ± 0.15 |
-| **A-Block Rotor-Only** ($\kappa = 0, \sigma$) | 3.028 ± 0.194 | 4.243 ± 0.017 | 70.1 ± 0.8% | 2.82 ± 0.04 |
-| **A-Block Full Clifford (Ours)** | **1.059 ± 0.031** | 0.385 ± 0.016 | **99.7 ± 0.1%** | **22.48 ± 0.15** |
+| Method | FES RMSE (kcal/mol) $\downarrow$ | $\mathcal{W}_1$ Distance $\downarrow$ | Terminal B/C occupancy (%) | Cumulative B/C visitation (%) | Transitions / Pt. |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Brownian Dynamics** ($\mathbf{f} = \mathbf{0}$) | 2.572 ± 0.136 | 3.127 ± 0.035 | 2.0 ± 0.4% | 56.4 ± 1.0% | 1.74 ± 0.06 |
+| **Standard Langevin** ($\kappa = 1, \sigma = 0$) | 1.476 ± 0.069 | **0.066 ± 0.008** | **60.9 ± 1.6%** | **99.7 ± 0.1%** | 21.47 ± 0.13 |
+| **Dilator-Only Ablation** ($\sigma = 0, \kappa$) | 1.064 ± 0.044 | 0.266 ± 0.026 | 44.2 ± 1.5% | 96.9 ± 0.3% | 13.86 ± 0.15 |
+| **A-Block Rotor-Only** ($\kappa = 0, \sigma$) | 3.028 ± 0.194 | 4.243 ± 0.017 | 0.4 ± 0.2% | 70.1 ± 0.8% | 2.82 ± 0.04 |
+| **A-Block Full Clifford (Ours)** | **1.059 ± 0.031** | 0.385 ± 0.016 | 37.4 ± 0.7% | **99.7 ± 0.1%** | **22.48 ± 0.15** |
+
+These are finite-time results on a synthetic potential. The Boltzmann reference places 63.6% of its mass in basins B/C, so the standard Langevin terminal occupancy is closer to that reference than A-Block's. The lower A-Block FES RMSE is restricted to the stated low-energy mask and should be read alongside the distribution and occupancy metrics, not as evidence of overall equilibrium superiority.
 
 ### Non-Convex Typography Navigation (`'G'`, Figure 3)
 
@@ -88,9 +92,9 @@ pytest tests/ -v
 
 - `src/` — Core `Cl(2,0)` neural score network (`models.py`), potentials (`potentials.py`), DSM trainer (`training.py`), SDE integrators (`samplers.py`), and evaluation metrics (`metrics.py`).
 - [`notebooks/00_ablock_guided_tour_and_sketches.ipynb`](notebooks/00_ablock_guided_tour_and_sketches.ipynb) — **Start Here:** Self-contained intuition builder with 5 minimal Python sketches, pre-rendered visual outputs, and a guided map to the codebase (`01` and `02` provide focused benchmark notebooks).
-- `interactive/` — Browser-based `p5.js` sketches for the multi-aperture `"MAGIC"` ensemble (`magic_apertures/`) and the $O(N^2)$ vs. $O(N)$ point-measure visualizer (`proposition1_visualizer/`).
-- `paper/` — Camera-ready LaTeX source (`main.tex`) and compiled manuscript (`main.pdf`).
-- [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) & [`PROVENANCE.md`](PROVENANCE.md) — Detailed mathematical derivations, Fokker–Planck stationarity analysis, and parameter provenance.
+- `interactive/` — Browser-based `p5.js` sketches for the multi-aperture `"MAGIC"` ensemble (`magic_apertures/`) and a conceptual all-pairs-graph vs. independent-field operation-count illustration (`proposition1_visualizer/`). The $O(N)$ field-evaluation cost applies to both A-Block and standard Langevin in this benchmark.
+- `paper/` — LaTeX source (`main.tex`) and compiled manuscript (`main.pdf`).
+- [`reproducibility.md`](reproducibility.md) & [`provenance.md`](provenance.md) — Mathematical derivations, Fokker–Planck stationarity analysis, and parameter provenance.
 
 ---
 
@@ -98,7 +102,7 @@ pytest tests/ -v
 
 ```bibtex
 @inproceedings{oduniyi2026ablock,
-  title={A-Block: Active Form Dynamics via Clifford Neural Score Matching},
+  title={A-Block: Clifford Score Dynamics},
   author={Oduniyi, Erick},
   booktitle={Machine Learning and the Physical Sciences (ML4PS) Workshop at NeurIPS},
   year={2026},

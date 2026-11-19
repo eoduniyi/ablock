@@ -1,6 +1,6 @@
-xw# Parameter & Artifact Provenance (`PROVENANCE.md`)
+# Parameter & Artifact Provenance (`provenance.md`)
 
-This document records the complete provenance of every physical parameter, neural network hyperparameter, integration setting, trained weight checkpoint, and visual figure in **"A-Block: Active Form Dynamics via Clifford Neural Score Matching"** (ML4PS @ NeurIPS 2026).
+This document records the provenance of the physical parameters, network hyperparameters, integration settings, checkpoints, and figures in **"A-Block: Clifford Score Dynamics"** (ML4PS @ NeurIPS 2026).
 
 ---
 
@@ -9,11 +9,12 @@ This document records the complete provenance of every physical parameter, neura
 | Paper Element | File in Repository | Generating Script / Source | Deterministic Seed / Checkpoint |
 | :--- | :--- | :--- | :--- |
 | **Trained DSM Network** (`CliffordScoreNet`) | `output/clifford_score_net.pt` | `reproduce_table1_and_figure1.py` | `torch.manual_seed(42)`, `np.random.seed(42)` |
-| **Table 1 & Multi-Seed Ablations** | `output/table1_results.json` | `reproduce_table1_and_figure1.py` | Canonical Seed `42`; 5-Seed Eval `{42, 100, 2026, 7, 99}` |
+| **Table 1 & Multi-Seed Ablations** | `output/table1_results.json` | `reproduce_table1_and_figure1.py` | Training seed `42`; evaluation seeds `{42, 43, 44, 45, 46}` |
+| **Timestep Sensitivity** | `output/timestep_sensitivity.json` | `reproduce_table1_and_figure1.py` | Seed `42` ($N=2,000$, $T=3,000$, $\Delta t=0.005$) |
 | **Figure 1** (3-Basin Kinetic Trap Benchmark) | `output/figure1_annotated_benchmark.pdf` | `reproduce_table1_and_figure1.py` | Seed `42` ($N=2,000, T=1,000, \Delta t = 0.015$) |
 | **Figure 2** (`A1`–`A5` `"MAGIC"` Apertures) | `paper/d.png` | `interactive/magic_apertures/sketch.js` | p5.js multi-aperture bioluminescent simulation |
 | **Figure 3 & Metrics** (`'G'` Glyph Benchmark) | `output/figure3_typography_benchmark.pdf`, `output/typography_metrics.json` | `reproduce_typography_figure3.py` | Seed `42` ($N=1,200, T=4,000, \Delta t = 2.0$) |
-| **Interactive Proposition 1 Explorer** | `interactive/proposition1_visualizer/` | `interactive/proposition1_visualizer/sketch.js` | Real-time $O(N^2)$ graph vs. $O(N)$ point-measure comparison |
+| **Interactive Complexity Sketch** | `interactive/proposition1_visualizer/` | `interactive/proposition1_visualizer/sketch.js` | Conceptual all-pairs graph ($O(N^2)$) vs. independent field evaluations ($O(N)$); the latter applies to both A-Block and Langevin and is not a measured runtime comparison |
 
 ---
 
@@ -46,11 +47,11 @@ $$
 | :--- | :---: | :--- |
 | MLP Architecture | $2 \to 64 \to 64 \to 64 \to 3$ (SiLU) | Smooth $C^\infty$ differentiability for $\nabla V_\theta(\mathbf{x})$ |
 | Training Corpus | 12,000 samples (4,000 per basin) | Relaxed via 150 unadjusted Langevin steps ($\Delta t = 0.012, k_B T = 0.6$) |
-| DSM Noise Levels | $\sigma_n \in \{0.05, 0.10, 0.20\}$ | Multi-scale perturbation covering core wells and saddle regions |
+| DSM Noise Levels | $\sigma_n \in \{0.05, 0.10, 0.20\}$ | Multi-scale Gaussian perturbations of the generated training samples |
 | Optimizer & Schedule | AdamW ($\text{lr}=2\times 10^{-3}$, wd $=10^{-5}$) | 250 epochs, cosine annealing, gradient norm clipping at 1.0 |
-| **Energy Calibration Factor** ($\alpha_E$) | $\alpha_E \approx 1.678\text{ (kcal/mol)}^{-1}$ | DSM target $-\boldsymbol{\epsilon}/\sigma_n^2$ estimates dimensionless score $-\nabla V / (k_B T)$ |
-| Rotor Chirality Output | $\sigma(\mathbf{x}) = 1.5\tanh(z_1) \in [-1.5, 1.5]$ | Unconstrained random-feature field ($\bar{\sigma} = -1.31 \pm 0.26$) |
-| Dilator Contraction Output | $\kappa(\mathbf{x}) = \text{softplus}(z_2) + 0.1$ | Unconstrained random-feature field ($\bar{\kappa} = 0.33 \pm 0.17$), which naturally counterbalances $\alpha_E$ ($\bar{\kappa}\alpha_E \approx 0.56\text{--}0.92 \approx 1$) |
+| **Energy Calibration Factor** ($\alpha_E$) | $\alpha_E \approx 1.678\text{ (kcal/mol)}^{-1}$ | Empirical scale estimate from the learned score; not an exact calibration guarantee |
+| Rotor Chirality Output | $\sigma(\mathbf{x}) = 1.5\tanh(z_1) \in [-1.5, 1.5]$ | The DSM loss does not directly supervise this output head |
+| Dilator Contraction Output | $\kappa(\mathbf{x}) = \text{softplus}(z_2) + 0.1$ | The DSM loss does not directly supervise this output head; actual state dependence is not constrained to preserve the Boltzmann target |
 
 ---
 
