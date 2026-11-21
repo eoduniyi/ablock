@@ -73,7 +73,7 @@ We define the multivector drift operator as a coupled \textit{rotor-dilator}:
 \vspace{-1mm}
 where $I \nabla V_\theta = (-\partial_{y} V_\theta, \partial_{x} V_\theta)^\top$ rotates the gradient by $90^\circ$, $\sigma_i = 1.5 \tanh(\cdot) \in [-1.5, 1.5]$ controls rotor chirality, and $\kappa_i = \operatorname{softplus}(\cdot) + 0.1$ sets the dilator rate. The DSM loss depends only on $V_\theta$: the $\sigma$ and $\kappa$ output heads receive no direct gradients from that objective. Their reported values ($\bar{\sigma}=-1.31\pm0.26$, $\bar{\kappa}=0.33\pm0.17$) therefore describe unsupervised readouts, not learned optimal controls or a demonstrated thermodynamic calibration.
 
-\textbf{Overdamped Barrier-Crossing Mechanism.} Each particle evolves via the overdamped Ito SDE:
+\textbf{Overdamped Barrier-Crossing Mechanism.} Each particle evolves via the overdamped It\^o stochastic differential equation (SDE):
 \vspace{-1mm}
 \begin{equation}
 \gamma d\mathbf{x}_i = (\sigma_i I - \kappa_i) \nabla V_\theta(\mathbf{x}_i) dt + \sqrt{2 \gamma k_B T} d\mathbf{W}_i(t).

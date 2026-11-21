@@ -1,0 +1,35 @@
+\relax 
+\citation{noe2019boltzmann,hoogeboom2022equivariant,du2022molgen}
+\citation{bronstein2021geometric,song2020score}
+\citation{devore2016single}
+\citation{hwang2005accelerating,lelievre2013optimal,duncan2016variance}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{}\protected@file@percent }
+\citation{song2020score}
+\@writefile{toc}{\contentsline {section}{\numberline {2}The A-Block Architecture: Clifford Neural Score Matching}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Neural Potential Parameterization, Energy Calibration, and DSM Training}{2}{}\protected@file@percent }
+\newlabel{eq:score_matching}{{1}{2}{}{equation.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Geometric Algebra Formulation of Rotor-Dilator Dynamics ($\operatorname  {Cl}(2,0)$)}{2}{}\protected@file@percent }
+\newlabel{eq:clifford_flow}{{2}{2}{}{equation.2}{}}
+\newlabel{eq:langevin}{{3}{2}{}{equation.3}{}}
+\citation{hwang2005accelerating,lelievre2013optimal,duncan2016variance}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Stationarity Conditions and Non-Equilibrium Currents}{3}{}\protected@file@percent }
+\newlabel{prop:stationarity}{{1}{3}{}{definition.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Per-Step Complexity and Scope}{3}{}\protected@file@percent }
+\newlabel{prop:complexity}{{2}{3}{}{definition.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Empirical Evaluation and Ablation Benchmark}{3}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Synthetic multi-well sampling and component ablation benchmark ($N=2{,}000$, $T=1{,}000$, $dt=0.015$). Values show canonical seed-42 metrics and five-seed standard deviations. Dilator-Only ($\sigma =0,\kappa $) isolates contraction from rotor circulation ($\sigma I$).}}{4}{}\protected@file@percent }
+\newlabel{tab:moml_benchmarks}{{1}{4}{}{table.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Synthetic kinetic-trap benchmark ($N=2{,}000$, $T=1{,}000$), initialized in Basin A. Dashed circles mark basin cores ($r^2<0.45$); the gold contour marks $V=-1.2\text  { kcal/mol}$. (a)~Brownian dynamics diffuses without drift. (b)~Standard Langevin concentrates more terminal mass in the basin cores. (c)~Rotor-only dynamics lacks contractive restoration. (d)~A-Block combines the rotor and dilator; it has the lowest selected-mask FES RMSE and the highest transition count among the tested methods, but these finite-time metrics do not establish equilibrium accuracy.}}{4}{}\protected@file@percent }
+\newlabel{fig:kinetic_trap_benchmark}{{1}{4}{}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Analysis of Benchmark Results, Ablations, and Sensitivity Checks}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion and Limitations}{5}{}\protected@file@percent }
+\bibstyle{unsrtnat}
+\bibdata{reference}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Modular Multiscale Assemblies and Standardized Typography Benchmark}{6}{}\protected@file@percent }
+\newlabel{sec:appendix}{{A}{6}{}{section.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Illustrative multi-unit particle-control sketch ($A_1$--$A_5$) for the target forms \textit  {``MAGIC''}. The p5.js visualization uses prescribed geometric fields; it is separate from the DSM-trained network and the glyph benchmark. It illustrates a modular layout, not a measured scaling result or a molecular simulation.}}{6}{}\protected@file@percent }
+\newlabel{fig:ablock_units}{{2}{6}{}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Standardized Topological Navigation Benchmark on Non-Convex Glyphs}{6}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Finite-horizon navigation benchmark on the non-convex letterform \textit  {`G'} ($N=1{,}200$, $T=4{,}000$, identical noise amplitude $0.85$ and circular aperture boundary $r_{\text  {dish}}$ across all methods). (a)~\textbf  {Brownian Dynamics ($\mathbf  {f}=\mathbf  {0}$)}: visitation $99.3\%$, terminal coverage $90.5\%$, and precision $26.1\%$. (b)~\textbf  {Standard Langevin ($\sigma =0, \kappa =1.0$)}: precision $98.9\%$, visitation $33.2\%$, and terminal coverage $33.7\%$. (c)~\textbf  {Rotor-Only ($\sigma =11.0, \kappa =0$)}: visitation $100.0\%$, precision $0.1\%$, and terminal coverage $1.4\%$. (d)~\textbf  {Full Clifford A-Block ($\sigma =11.0, \kappa =1.8$)}: precision $99.9\%$, visitation $97.8\%$, and terminal coverage $99.2\%$. These metrics describe this finite-horizon synthetic-potential experiment and do not establish equilibrium sampling or a general navigation guarantee.}}{6}{}\protected@file@percent }
+\newlabel{fig:typography_benchmark}{{3}{6}{}{figure.3}{}}
+\gdef \@abspage@last{6}
