@@ -155,20 +155,20 @@ def make_typography_figure(V, mask, dish_info, samplers, trajectories, metrics, 
         ax.set_title(names[idx], fontsize=11, fontweight='bold', pad=7, color='#059669' if is_winner else '#0F172A')
 
         ax.text(0.04, 0.95, panel_labels[idx], transform=ax.transAxes,
-                fontsize=11.5, fontweight='bold', va='top', ha='left', color='#0F172A',
+                fontsize=11.5, fontweight='bold', va='top', ha='left', color='#0F172A', zorder=12,
                 bbox=dict(boxstyle='round,pad=0.18', facecolor='white', edgecolor='#CBD5E1', alpha=0.95, lw=0.7))
 
         ax.text(0.96, 0.95, equations[idx], transform=ax.transAxes,
-                fontsize=9.5, ha='right', va='top', color='#1E293B',
+                fontsize=9.5, ha='right', va='top', color='#1E293B', zorder=12,
                 bbox=dict(boxstyle='round,pad=0.2', facecolor='white', edgecolor='#CBD5E1', alpha=0.92, lw=0.6))
 
         vis_val = metrics[name]['trajectory_visitation_pct']
         prec_val = metrics[name]['precision_pct']
         ax.text(0.96, 0.83, f"Visit: {vis_val:.1f}% | Prec: {prec_val:.1f}%", transform=ax.transAxes,
-                fontsize=7.8, fontweight='bold', ha='right', va='top',
+                fontsize=7.8, fontweight='bold', ha='right', va='top', zorder=12,
                 color='#059669' if is_winner else '#475569',
                 bbox=dict(boxstyle='round,pad=0.18', facecolor='#F8FAFC',
-                          edgecolor='#10B981' if is_winner else '#CBD5E1', alpha=0.92, lw=0.8))
+                          edgecolor='#10B981' if is_winner else '#CBD5E1', alpha=0.95, lw=0.8))
 
         badge_bg = '#059669' if is_winner else '#FFFFFF'
         badge_text = '#FFFFFF' if is_winner else '#1E293B'

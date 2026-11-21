@@ -3,12 +3,12 @@
 \usepackage[final]{neurips_2026}
 
 \usepackage{booktabs}            % professional-quality tables
-\usepackage{multirow}            % tabular cells spanning multiple rows
 \usepackage{amsfonts}            % blackboard math symbols
 \usepackage{amsmath, amssymb, amsthm, mathtools}
 \usepackage{graphicx}            % figures
 \usepackage{url}
 \usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
 
 \newtheorem{definition}{Definition}
 \newtheorem{proposition}[definition]{Proposition}
@@ -22,10 +22,6 @@
   Cambridge, MA\\
   \texttt{erick000@media.mit.edu}\\
 }
-
-\setlength{\textfloatsep}{6pt plus 1pt minus 1pt}
-\setlength{\floatsep}{5pt plus 1pt minus 1pt}
-\setlength{\intextsep}{5pt plus 1pt minus 1pt}
 
 \begin{document}
 
@@ -45,19 +41,17 @@ We introduce \textbf{A-Block} (Algebraic Block), a two-dimensional Clifford roto
 
 \section{The A-Block Architecture: Clifford Neural Score Matching}
 
-An \textit{A-Block} models a modular ensemble of $N$ particle states $\mathbf{x}_i \in \Omega \subset \mathbb{R}^2$ evolving in a bounded domain under a learned scalar field. Our multi-well benchmark is a synthetic two-dimensional potential, not a molecular simulation of a $(\phi,\psi)$ dihedral pair. The separate glyph task uses a potential constructed directly from a rasterized letterform.
+An \textit{A-Block} models a modular ensemble of $N$ particle states $\mathbf{x}_i \in \Omega \subset \mathbb{R}^2$ evolving in a bounded domain under a learned scalar field. Our multi-well benchmark is a synthetic two-dimensional potential, not a molecular simulation of a $(\phi,\psi)$ dihedral pair. The separate glyph task uses a potential constructed directly from a rasterized letterform (Appendix~\ref{sec:appendix}).
 
 \subsection{Neural Potential Parameterization, Energy Calibration, and DSM Training}
 
 Let $\mathbf{x} \in \mathbb{R}^2$ denote internal reaction coordinates governed by a multi-well potential $V(\mathbf{x})$ (in $\text{kcal/mol}$) at thermal energy $k_B T = 0.6\text{ kcal/mol}$. We model the target Boltzmann density $p(\mathbf{x}) \propto \exp(-V(\mathbf{x}) / k_B T)$ via a neural network (\texttt{CliffordScoreNet}) parameterizing a scalar potential $V_\theta(\mathbf{x}): \mathbb{R}^2 \to \mathbb{R}$ alongside rotor-dilator control channels $(\sigma(\mathbf{x}), \kappa(\mathbf{x}))$.
 
 \textbf{Network Architecture and Training Protocol.} \texttt{CliffordScoreNet} is a 4-layer multilayer perceptron ($\mathbb{R}^2 \to 64 \to 64 \to 64 \to \mathbb{R}^3$) with $\operatorname{SiLU}$ activations. We initialize $12{,}000$ coordinates ($4{,}000$ per basin with Gaussian dispersion $0.35\text{--}0.40$) and apply $150$ unadjusted Langevin relaxation steps ($dt = 0.012, k_B T = 0.6$); this finite corpus is not asserted to be an equilibrated sample. The network is trained for $250$ epochs via Vincent--Song Denoising Score Matching (DSM)~\citep{song2020score} using $\operatorname{AdamW}$ ($\text{lr} = 2 \times 10^{-3}$, weight decay $10^{-5}$, cosine annealing, gradient clipping at $1.0$) over multi-scale noise perturbations $\sigma_n \in \{0.05, 0.10, 0.20\}$:
-\vspace{-1mm}
 \begin{equation}
 \mathcal{L}_{\text{DSM}}(\theta) = \mathbb{E}_{\mathbf{x} \sim p_{\text{data}},\, \sigma_n,\, \boldsymbol{\epsilon} \sim \mathcal{N}(0, \mathbf{I})}\Bigl[ \sigma_n^2 \bigl\| -\nabla_{\mathbf{\tilde{x}}} V_\theta(\mathbf{\tilde{x}}) - \nabla_{\mathbf{\tilde{x}}} \log q_{\sigma_n}(\mathbf{\tilde{x}}|\mathbf{x}) \bigr\|^2 \Bigr],
 \label{eq:score_matching}
 \end{equation}
-\vspace{-1mm}
 where $\mathbf{\tilde{x}} = \mathbf{x} + \sigma_n \boldsymbol{\epsilon}$ and $\nabla_{\mathbf{\tilde{x}}} \log q_{\sigma_n}(\mathbf{\tilde{x}}|\mathbf{x}) = -\boldsymbol{\epsilon}/\sigma_n$. Equivalently, if $\boldsymbol{\eta}=\sigma_n\boldsymbol{\epsilon}$ is the scaled noise, the target is $-\boldsymbol{\eta}/\sigma_n^2$. The scalar output is trained to estimate the score of the generated corpus; its empirical scale factor $\alpha_E \approx 1.678\text{ (kcal/mol)}^{-1}$ is not an exact calibration guarantee.
 
 \subsection{Geometric Algebra Formulation of Rotor-Dilator Dynamics ($\operatorname{Cl}(2,0)$)}
@@ -65,21 +59,17 @@ where $\mathbf{\tilde{x}} = \mathbf{x} + \sigma_n \boldsymbol{\epsilon}$ and $\n
 Standard score-guided Langevin dynamics evolve strictly along $-\nabla V_\theta(\mathbf{x})$. To introduce non-reversible circulation along equipotential contours, we work in the 2D Clifford Geometric Algebra $\operatorname{Cl}(2,0)$ with orthonormal basis $\{e_1, e_2\}$ and unit bivector pseudoscalar $I = e_1 e_2$ ($I^2 = -1$). While a monolithic $D$-dimensional Clifford algebra $\operatorname{Cl}(D,0)$ incurs $2^D$ basis growth, macromolecular backbones with $K$ dihedral hinges $(\phi_k, \psi_k)$ decompose into a direct sum of planar subalgebras $\bigoplus_{k=1}^K \operatorname{Cl}(2,0)$, scaling linearly as $4K$ rather than $2^{2K}$.
 
 We define the multivector drift operator as a coupled \textit{rotor-dilator}:
-\vspace{-1mm}
 \begin{equation}
 \mathbf{f}_i(\mathbf{x}_i) = (\sigma_i I - \kappa_i) \nabla V_\theta(\mathbf{x}_i),
 \label{eq:clifford_flow}
 \end{equation}
-\vspace{-1mm}
 where $I \nabla V_\theta = (-\partial_{y} V_\theta, \partial_{x} V_\theta)^\top$ rotates the gradient by $90^\circ$, $\sigma_i = 1.5 \tanh(\cdot) \in [-1.5, 1.5]$ controls rotor chirality, and $\kappa_i = \operatorname{softplus}(\cdot) + 0.1$ sets the dilator rate. The DSM loss depends only on $V_\theta$: the $\sigma$ and $\kappa$ output heads receive no direct gradients from that objective. Their reported values ($\bar{\sigma}=-1.31\pm0.26$, $\bar{\kappa}=0.33\pm0.17$) therefore describe unsupervised readouts, not learned optimal controls or a demonstrated thermodynamic calibration.
 
 \textbf{Overdamped Barrier-Crossing Mechanism.} Each particle evolves via the overdamped It\^o stochastic differential equation (SDE):
-\vspace{-1mm}
 \begin{equation}
 \gamma d\mathbf{x}_i = (\sigma_i I - \kappa_i) \nabla V_\theta(\mathbf{x}_i) dt + \sqrt{2 \gamma k_B T} d\mathbf{W}_i(t).
 \label{eq:langevin}
 \end{equation}
-\vspace{-1mm}
 Because Eq.~(\ref{eq:langevin}) is overdamped, particles carry no inertial momentum, and pure deterministic rotation $\sigma I \nabla V_\theta$ preserves potential energy ($\nabla V_\theta \cdot I \nabla V_\theta = 0$). The rotor therefore moves tangentially along equipotential level sets. Depending on the field geometry and coefficient, this motion can carry particles toward or away from saddle regions; thermal noise supports transitions, but the identity alone does not imply faster barrier crossing.
 
 \subsection{Stationarity Conditions and Non-Equilibrium Currents}
@@ -89,18 +79,14 @@ A fundamental question raised by modifying the drift in Eq.~(\ref{eq:langevin}) 
 \begin{proposition}[Sufficient Fokker--Planck Stationarity Condition]
 \label{prop:stationarity}
 Consider the overdamped SDE $d\mathbf{x} = \gamma^{-1}(\sigma(\mathbf{x}) I - \kappa(\mathbf{x}))\nabla V_\theta(\mathbf{x}) dt + \sqrt{2 D}\, d\mathbf{W}_t$ with diffusion $D = k_B T / \gamma$. The probability flux decomposes into reversible and circulatory currents $\mathbf{J} = \mathbf{J}_{\text{rev}} + \mathbf{J}_{\text{irr}}$:
-\vspace{-1mm}
 \begin{equation}
 \frac{\partial \rho}{\partial t} = \nabla \cdot \Bigl(\underbrace{\gamma^{-1}\kappa(\mathbf{x}) \rho \nabla V_\theta + D \nabla \rho}_{-\mathbf{J}_{\text{rev}}}\Bigr) - \nabla \cdot \Bigl(\underbrace{\gamma^{-1}\sigma(\mathbf{x}) I \nabla V_\theta \, \rho}_{\mathbf{J}_{\text{irr}}}\Bigr).
 \end{equation}
-\vspace{-1mm}
 \begin{enumerate}
     \item \textbf{Measure-Preserving Non-Reversible Regime:} If $\kappa$ is constant (with calibrated potential $\kappa V_\theta = V$, i.e., $\kappa = \alpha_E^{-1} = k_B T$), $\sigma(\mathbf{x}) = \sigma(V_\theta(\mathbf{x}))$ depends only on the potential level, and the domain has suitable no-flux or vanishing-at-infinity boundary conditions, then $\rho_{\text{B}}(\mathbf{x}) = Z^{-1}\exp(-\kappa V_\theta(\mathbf{x})/k_B T) = Z^{-1}\exp(-V(\mathbf{x})/k_B T)$ is stationary. Specifically, $\mathbf{J}_{\text{rev}}(\rho_{\text{B}}) = \mathbf{0}$ and, because $\nabla \cdot (I \nabla V_\theta) = -\partial_x\partial_y V_\theta + \partial_y\partial_x V_\theta = 0$ and $\nabla \sigma(V_\theta) = \sigma'(V_\theta)\nabla V_\theta \perp I \nabla V_\theta$, the circulatory current is divergence-free:
-    \vspace{-1mm}
     \begin{equation}
     \nabla \cdot \mathbf{J}_{\text{irr}}(\rho_{\text{B}}) = \gamma^{-1}\bigl(\nabla \sigma(V_\theta) \cdot I \nabla V_\theta\bigr)\rho_{\text{B}} + \gamma^{-1}\sigma(V_\theta) \bigl(\nabla \rho_{\text{B}} \cdot I \nabla V_\theta\bigr) = 0.
     \end{equation}
-    \vspace{-1mm}
     \item \textbf{Position-dependent coefficients:} If the sufficient conditions above fail (for example, if $\nabla \sigma(\mathbf{x}) \cdot I \nabla V_\theta \neq 0$), the target Boltzmann density need not be stationary. A non-Boltzmann stationary density with nonzero probability current may arise under suitable confinement and boundary conditions; this condition alone does not establish its existence or properties.
 \end{enumerate}
 \end{proposition}
@@ -110,11 +96,10 @@ In 2D, the Clifford bivector $I=e_1e_2$ is the coordinate-free generator of a sk
 \section{Per-Step Complexity and Scope}
 
 We represent the particle ensemble by its empirical measure
-\vspace{-1mm}
 \begin{equation}
 \mu_t = \frac{1}{N} \sum_{i=1}^{N} \delta_{\mathbf{x}_i(t)}.
 \end{equation}
-\vspace{-1mm}
+
 \textbf{Independent-particle cost.} In the experiments, particles are updated independently in a shared field. Evaluating that field for $N$ particles costs $O(N)$ per step for both standard Langevin and A-Block; the rotor-dilator combination adds constant-factor arithmetic. This is not a complexity advantage over Langevin. An explicit all-pairs interaction graph would require $O(N^2)$ distance checks, but no such graph baseline is part of our experiments. We report no empirical scaling curve or wall-clock time-to-accuracy comparison. Extending the update to $K$ independent two-dimensional coordinates would cost $O(NK)$ under that independence assumption; this does not establish complexity for coupled molecular degrees of freedom.
 
 \begin{proposition}[Cost of independent field evaluation]
@@ -137,7 +122,7 @@ We evaluated A-Block on a canonical 2D triple-well conformational landscape feat
 
 \begin{table}[t]
 \centering
-\caption{Synthetic multi-well sampling and component ablation benchmark ($N=2{,}000$, $T=1{,}000$, $dt=0.015$). Values show canonical seed-42 metrics and five-seed standard deviations. Dilator-Only ($\sigma=0,\kappa$) isolates contraction from rotor circulation ($\sigma I$).}
+\caption{Synthetic multi-well sampling and component ablation benchmark ($N=2{,}000$, $T=1{,}000$, $dt=0.015$). Values show canonical seed-42 metrics and five-seed standard deviations. Dilator-Only ($\sigma=0,\kappa$) isolates contraction from rotor circulation ($\sigma I$). For Term.\ B/C Occ., bold indicates closest to the grid-based Boltzmann reference ($63.6\%$).}
 \label{tab:moml_benchmarks}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{lccccc}
@@ -154,17 +139,14 @@ A-Block Rotor-Only ($\kappa = 0, \sigma$) & $3.028 \pm 0.194$ & $4.243 \pm 0.017
 }
 \end{table}
 
+\subsection{Analysis of Benchmark Results, Ablations, and Sensitivity Checks}
+
 \begin{figure}[t]
 \centering
-\vspace{-1mm}
 \includegraphics[width=\linewidth]{annotated_kinetic_trap_benchmark_1x4.pdf}
-\vspace{-3mm}
 \caption{Synthetic kinetic-trap benchmark ($N=2{,}000$, $T=1{,}000$), initialized in Basin A. Dashed circles mark basin cores ($r^2<0.45$); the gold contour marks $V=-1.2\text{ kcal/mol}$. (a)~Brownian dynamics diffuses without drift. (b)~Standard Langevin concentrates more terminal mass in the basin cores. (c)~Rotor-only dynamics lacks contractive restoration. (d)~A-Block combines the rotor and dilator; it has the lowest selected-mask FES RMSE and the highest transition count among the tested methods, but these finite-time metrics do not establish equilibrium accuracy.}
 \label{fig:kinetic_trap_benchmark}
-\vspace{-2mm}
 \end{figure}
-
-\subsection{Analysis of Benchmark Results, Ablations, and Sensitivity Checks}
 
 \textbf{Interpreting the mixed metrics.} A-Block has lower terminal histogram FES RMSE than standard Langevin on the selected mask, but standard Langevin has lower sliced $\mathcal{W}_1$ distance ($0.066$ vs.\ $0.385$) and terminal B/C occupancy ($60.9\%$ vs.\ $37.4\%$). The exact grid-based Boltzmann reference places $63.6\%$ of its mass in B/C, making Langevin's terminal occupancy closer to the reference. We therefore do not interpret the lower occupancy or higher $\mathcal{W}_1$ as evidence of physically desirable circulation. Cumulative B/C visitation is $99.7\%$ for both methods and measures whether particles reached the basins, not how accurately their terminal distribution matches equilibrium. The FES RMSE is a complementary local metric: it is computed only where $V<-1.2$ and aligns the minimum offset, so it does not override the distributional metrics. The matched-contraction ablation has FES RMSE $1.064\pm0.044$, close to A-Block's $1.059\pm0.031$; the clearest difference is the transition count ($13.86\pm0.15$ vs.\ $22.48\pm0.15$ per particle). A-Block's transition count is only modestly higher than standard Langevin's ($22.48\pm0.15$ vs.\ $21.47\pm0.13$), and we make no time-to-accuracy or sampling-efficiency claim.
 
@@ -186,12 +168,9 @@ We presented a two-dimensional Clifford rotor-dilator update and evaluated it on
 
 \begin{figure}[!htb]
 \centering
-\vspace{-2mm}
 \includegraphics[width=0.73\linewidth]{d.png}
-\vspace{-2mm}
 \caption{Illustrative multi-unit particle-control sketch ($A_1$--$A_5$) for the target forms \textit{``MAGIC''}. The p5.js visualization uses prescribed geometric fields; it is separate from the DSM-trained network and the glyph benchmark. It illustrates a modular layout, not a measured scaling result or a molecular simulation.}
 \label{fig:ablock_units}
-\vspace{-2mm}
 \end{figure}
 
 In this Appendix, we show a separate particle-control visualization and a glyph-navigation benchmark. Both use prescribed geometric potentials and are not evaluations of the molecular applicability or equilibrium correctness of the DSM-trained multi-well sampler.
@@ -203,12 +182,9 @@ We report three complementary metrics in Figure~\ref{fig:typography_benchmark} a
 
 \begin{figure}[!htb]
 \centering
-\vspace{-2mm}
 \includegraphics[width=0.84\linewidth]{typography_kinetic_trap_benchmark_1x4.pdf}
-\vspace{-2mm}
 \caption{Finite-horizon navigation benchmark on the non-convex letterform \textit{`G'} ($N=1{,}200$, $T=4{,}000$, identical noise amplitude $0.85$ and circular aperture boundary $r_{\text{dish}}$ across all methods). (a)~\textbf{Brownian Dynamics ($\mathbf{f}=\mathbf{0}$)}: visitation $99.3\%$, terminal coverage $90.5\%$, and precision $26.1\%$. (b)~\textbf{Standard Langevin ($\sigma=0, \kappa=1.0$)}: precision $98.9\%$, visitation $33.2\%$, and terminal coverage $33.7\%$. (c)~\textbf{Rotor-Only ($\sigma=11.0, \kappa=0$)}: visitation $100.0\%$, precision $0.1\%$, and terminal coverage $1.4\%$. (d)~\textbf{Full Clifford A-Block ($\sigma=11.0, \kappa=1.8$)}: precision $99.9\%$, visitation $97.8\%$, and terminal coverage $99.2\%$. These metrics describe this finite-horizon synthetic-potential experiment and do not establish equilibrium sampling or a general navigation guarantee.}
 \label{fig:typography_benchmark}
-\vspace{-2mm}
 \end{figure}
 
 In this finite-horizon run, Standard Langevin has high in-glyph precision ($98.9\%$) but lower trajectory visitation ($33.2\%$) and terminal coverage ($33.7\%$) than A-Block ($99.9\%$, $97.8\%$, and $99.2\%$, respectively). Dilator-Only visitation and terminal coverage are $31.2\%$ and $33.6\%$. These results describe the tested synthetic field and parameters; they do not prove a general geometric trapping mechanism, a steady state, or improved equilibrium sampling.
